@@ -1,5 +1,5 @@
-// API Configuration
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+// API Configuration — default port matches server.js (3001)
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001/api';
 
 // Helper function for API calls
 async function apiCall(endpoint, options = {}) {
@@ -113,23 +113,39 @@ export async function checkServerHealth() {
   }
 }
 
-// Offline fallback - use localStorage if server is down
+// Offline fallback — use localStorage when server is unreachable.
+// In Electron, localStorage is available in the renderer process;
+// guard against environments where it may not be.
+const hasLocalStorage = (() => {
+  try {
+    localStorage.setItem('__test__', '1');
+    localStorage.removeItem('__test__');
+    return true;
+  } catch {
+    return false;
+  }
+})();
+
 export const offlineFallback = {
   getTransactions() {
+    if (!hasLocalStorage) return [];
     const data = localStorage.getItem('expense_transactions');
     return data ? JSON.parse(data) : [];
   },
 
   saveTransactions(transactions) {
+    if (!hasLocalStorage) return;
     localStorage.setItem('expense_transactions', JSON.stringify(transactions));
   },
 
   getBudgets() {
+    if (!hasLocalStorage) return {};
     const data = localStorage.getItem('expense_budgets');
     return data ? JSON.parse(data) : {};
   },
 
   saveBudgets(budgets) {
+    if (!hasLocalStorage) return;
     localStorage.setItem('expense_budgets', JSON.stringify(budgets));
   },
 };

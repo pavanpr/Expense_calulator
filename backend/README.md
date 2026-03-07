@@ -31,7 +31,7 @@ This uses `--watch` flag to auto-reload on changes.
 npm start
 ```
 
-Server runs on `http://localhost:5000` by default.
+Server runs on `http://localhost:3001` by default (set `PORT` env var to override).
 
 ## API Endpoints
 
@@ -89,18 +89,8 @@ Server runs on `http://localhost:5000` by default.
 Set environment variables in `.env`:
 
 ```bash
-PORT=5000
+PORT=3001
 ```
-
-## Future Enhancements
-
-1. **Database Upgrade**: Switch from JSON to MongoDB or PostgreSQL
-2. **Authentication**: Add user authentication and multi-user support
-3. **Cloud Sync**: Deploy to cloud (Heroku, AWS, DigitalOcean)
-4. **Webhooks**: Real-time notifications
-5. **Analytics**: Advanced spending analytics
-6. **Mobile App**: React Native/Flutter app
-7. **Desktop App**: Electron app with offline support
 
 ## File Structure
 
@@ -115,7 +105,3 @@ backend/
 │   └── users.json
 └── README.md          # This file
 ```
-
-## License
-
-MIT

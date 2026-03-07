@@ -2,8 +2,22 @@ import React from 'react';
 import { CATEGORIES, MONTHS } from '../constants.js';
 import { formatINR, formatINRFull } from '../utils.js';
 
+// Derive a friendly greeting based on the time of day
+function getGreeting() {
+  const hour = new Date().getHours();
+  if (hour < 12) return "Good morning";
+  if (hour < 17) return "Good afternoon";
+  return "Good evening";
+}
+
+// Format "2026-03" → "March 2026"
+function formatMonthLabel(monthStr) {
+  const [year, month] = monthStr.split("-");
+  return `${MONTHS[parseInt(month) - 1]} ${year}`;
+}
+
 export default function Dashboard({ transactions, currentMonthStr, monthlyBudget, setView }) {
-  const currentMonthTx = transactions.filter(t => t.date.startsWith(currentMonthStr));
+  const currentMonthTx  = transactions.filter(t => t.date.startsWith(currentMonthStr));
   const currentExpenses = currentMonthTx.filter(t => t.type === "expense").reduce((s, t) => s + t.amount, 0);
   const currentIncome   = currentMonthTx.filter(t => t.type === "income").reduce((s, t) => s + t.amount, 0);
   const savings    = currentIncome - currentExpenses;
@@ -43,10 +57,10 @@ export default function Dashboard({ transactions, currentMonthStr, monthlyBudget
     <div className="fade-in">
       <div style={{ marginBottom: 28 }}>
         <h1 style={{ fontFamily: "'Playfair Display', serif", fontSize: 28, color: "#E8EAF0" }}>
-          Good day, Pavan 👋
+          {getGreeting()} 👋
         </h1>
         <p style={{ color: "#6B7494", fontSize: 14, marginTop: 4 }}>
-          Here's your financial overview for March 2026
+          Here's your financial overview for {formatMonthLabel(currentMonthStr)}
         </p>
       </div>
 
@@ -68,21 +82,25 @@ export default function Dashboard({ transactions, currentMonthStr, monthlyBudget
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20, marginBottom: 24 }}>
         <div className="card">
           <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 18 }}>Spending Breakdown</div>
-          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-            {categoryBreakdown.slice(0, 6).map(cat => (
-              <div key={cat.id}>
-                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 5 }}>
-                  <span style={{ fontSize: 13, color: "#B0B8D0", display: "flex", alignItems: "center", gap: 6 }}>
-                    {cat.icon} {cat.label}
-                  </span>
-                  <span style={{ fontSize: 13, fontWeight: 600, color: cat.color }}>{formatINR(cat.amount)}</span>
+          {categoryBreakdown.length === 0 ? (
+            <div style={{ textAlign: "center", padding: 30, color: "#4A5068", fontSize: 13 }}>No expenses recorded this month</div>
+          ) : (
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              {categoryBreakdown.slice(0, 6).map(cat => (
+                <div key={cat.id}>
+                  <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 5 }}>
+                    <span style={{ fontSize: 13, color: "#B0B8D0", display: "flex", alignItems: "center", gap: 6 }}>
+                      {cat.icon} {cat.label}
+                    </span>
+                    <span style={{ fontSize: 13, fontWeight: 600, color: cat.color }}>{formatINR(cat.amount)}</span>
+                  </div>
+                  <div style={{ height: 6, borderRadius: 3, background: "#1E2436", overflow: "hidden" }}>
+                    <div style={{ height: "100%", borderRadius: 3, width: `${cat.pct}%`, background: cat.color, transition: "width 0.6s ease" }} />
+                  </div>
                 </div>
-                <div style={{ height: 6, borderRadius: 3, background: "#1E2436", overflow: "hidden" }}>
-                  <div style={{ height: "100%", borderRadius: 3, width: `${cat.pct}%`, background: cat.color, transition: "width 0.6s ease" }} />
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="card">
@@ -141,6 +159,9 @@ export default function Dashboard({ transactions, currentMonthStr, monthlyBudget
                 </div>
               );
             })}
+          {transactions.filter(t => t.date.startsWith(currentMonthStr)).length === 0 && (
+            <div style={{ textAlign: "center", padding: 30, color: "#4A5068", fontSize: 13 }}>No transactions this month yet</div>
+          )}
         </div>
       </div>
     </div>

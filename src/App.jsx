@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { SAMPLE_TRANSACTIONS } from './constants.js';
 import { formatINR } from './utils.js';
 import * as apiService from './services/apiService.js';
 import Sidebar from './components/Sidebar.jsx';
@@ -8,34 +7,45 @@ import AddEntry from './components/AddEntry.jsx';
 import Transactions from './components/Transactions.jsx';
 import Reports from './components/Reports.jsx';
 import Budget from './components/Budget.jsx';
+import ErrorBoundary from './components/ErrorBoundary.jsx';
 
-const CURRENT_MONTH = "2026-03";
+// Derive current month dynamically so the app stays accurate over time
+function getCurrentMonth() {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  return `${year}-${month}`;
+}
+
+const CURRENT_MONTH = getCurrentMonth();
 
 export default function App() {
   const [transactions, setTransactions]   = useState([]);
   const [view, setView]                   = useState("dashboard");
   const [monthlyBudget, setMonthlyBudget] = useState(60000);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [isOnline, setIsOnline] = useState(navigator.onLine);
-  const [editingId, setEditingId] = useState(null);
+  const [loading, setLoading]             = useState(true);
+  const [error, setError]                 = useState(null);
+  const [isOnline, setIsOnline]           = useState(navigator.onLine);
+  const [editingId, setEditingId]         = useState(null);
 
   // Load data from API on mount
   React.useEffect(() => {
     loadData();
-    
-    // Check server health
+
     apiService.checkServerHealth().then(healthy => {
       setIsOnline(healthy);
     });
 
-    // Listen for online/offline changes
-    window.addEventListener('online', () => setIsOnline(true));
-    window.addEventListener('offline', () => setIsOnline(false));
+    // Use named handlers so removeEventListener correctly cleans them up
+    const handleOnline  = () => setIsOnline(true);
+    const handleOffline = () => setIsOnline(false);
+
+    window.addEventListener('online',  handleOnline);
+    window.addEventListener('offline', handleOffline);
 
     return () => {
-      window.removeEventListener('online', () => setIsOnline(true));
-      window.removeEventListener('offline', () => setIsOnline(false));
+      window.removeEventListener('online',  handleOnline);
+      window.removeEventListener('offline', handleOffline);
     };
   }, []);
 
@@ -44,17 +54,16 @@ export default function App() {
       setLoading(true);
       const txns = await apiService.getTransactions();
       setTransactions(txns);
-      
+
       const budgets = await apiService.getBudgets();
       const currentBudget = budgets[CURRENT_MONTH]?.amount || 60000;
       setMonthlyBudget(currentBudget);
-      
+
       setError(null);
     } catch (err) {
       console.error('Failed to load data:', err);
       setError('Failed to load data. Using offline mode.');
-      
-      // Fallback to offline data
+
       const offlineTransactions = apiService.offlineFallback.getTransactions();
       setTransactions(offlineTransactions);
     } finally {
@@ -66,48 +75,55 @@ export default function App() {
   const currentExpenses = currentMonthTx.filter(t => t.type === "expense").reduce((s, t) => s + t.amount, 0);
   const budgetUsed      = (currentExpenses / monthlyBudget) * 100;
 
-  const addTransaction    = async (tx) => {
+  const addTransaction = async (tx) => {
     try {
       const newTx = await apiService.addTransaction(tx);
-      setTransactions(prev => [...prev, newTx]);
-      apiService.offlineFallback.saveTransactions([...transactions, newTx]);
+      setTransactions(prev => {
+        const updated = [...prev, newTx];
+        apiService.offlineFallback.saveTransactions(updated);
+        return updated;
+      });
     } catch (err) {
       console.error('Failed to add transaction:', err);
-      // Fallback: save to offline storage
-      const updated = [...transactions, { ...tx, id: Date.now() }];
-      setTransactions(updated);
-      apiService.offlineFallback.saveTransactions(updated);
+      setTransactions(prev => {
+        const updated = [...prev, { ...tx, id: Date.now() }];
+        apiService.offlineFallback.saveTransactions(updated);
+        return updated;
+      });
     }
   };
 
   const deleteTransaction = async (id) => {
+    // Optimistic update — remove locally first for snappy UX
+    setTransactions(prev => {
+      const updated = prev.filter(t => t.id !== id);
+      apiService.offlineFallback.saveTransactions(updated);
+      return updated;
+    });
     try {
       await apiService.deleteTransaction(id);
-      const updated = transactions.filter(t => t.id !== id);
-      setTransactions(updated);
-      apiService.offlineFallback.saveTransactions(updated);
     } catch (err) {
-      console.error('Failed to delete transaction:', err);
-      // Still delete locally
-      const updated = transactions.filter(t => t.id !== id);
-      setTransactions(updated);
-      apiService.offlineFallback.saveTransactions(updated);
+      console.error('Failed to delete transaction from server:', err);
+      // Already removed locally; will sync on next reload
     }
   };
 
   const updateTransaction = async (id, updatedTx) => {
     try {
       await apiService.updateTransaction(id, updatedTx);
-      const updated = transactions.map(t => t.id === id ? { ...updatedTx, id } : t);
-      setTransactions(updated);
-      apiService.offlineFallback.saveTransactions(updated);
+      setTransactions(prev => {
+        const updated = prev.map(t => t.id === id ? { ...updatedTx, id } : t);
+        apiService.offlineFallback.saveTransactions(updated);
+        return updated;
+      });
       setEditingId(null);
     } catch (err) {
       console.error('Failed to update transaction:', err);
-      // Fallback: update locally
-      const updated = transactions.map(t => t.id === id ? { ...updatedTx, id } : t);
-      setTransactions(updated);
-      apiService.offlineFallback.saveTransactions(updated);
+      setTransactions(prev => {
+        const updated = prev.map(t => t.id === id ? { ...updatedTx, id } : t);
+        apiService.offlineFallback.saveTransactions(updated);
+        return updated;
+      });
       setEditingId(null);
     }
   };
@@ -118,6 +134,8 @@ export default function App() {
       setMonthlyBudget(newBudget);
     } catch (err) {
       console.error('Failed to update budget:', err);
+      // Still update locally so the UI reflects the change
+      setMonthlyBudget(newBudget);
     }
   };
 
@@ -140,12 +158,12 @@ export default function App() {
       <div style={{ display: "flex", minHeight: "100vh", fontFamily: "'DM Sans', sans-serif", background: "#0D0F14", color: "#E8EAF0" }}>
         {/* Status Bar */}
         {(loading || error || !isOnline) && (
-          <div style={{ 
-            position: "fixed", 
-            top: 0, 
-            left: 0, 
-            right: 0, 
-            padding: "12px 16px", 
+          <div style={{
+            position: "fixed",
+            top: 0,
+            left: 0,
+            right: 0,
+            padding: "12px 16px",
             background: loading ? "#54A0FF22" : error ? "#FF6B6B22" : "#F9CA2422",
             borderBottom: `1px solid ${loading ? "#54A0FF" : error ? "#FF6B6B" : "#F9CA24"}`,
             fontSize: 13,
@@ -158,9 +176,16 @@ export default function App() {
             <span>
               {loading && "⏳ Loading your data..."}
               {error && `⚠️ ${error}`}
-              {!isOnline && "📡 Offline Mode - Changes will sync when online"}
+              {!isOnline && !loading && !error && "📡 Offline Mode — Changes will sync when online"}
             </span>
-            {error && <button onClick={loadData} style={{ background: "#FF6B6B", color: "white", border: "none", padding: "4px 12px", borderRadius: 4, cursor: "pointer", fontSize: 12 }}>Retry</button>}
+            {error && (
+              <button
+                onClick={loadData}
+                style={{ background: "#FF6B6B", color: "white", border: "none", padding: "4px 12px", borderRadius: 4, cursor: "pointer", fontSize: 12 }}
+              >
+                Retry
+              </button>
+            )}
           </div>
         )}
 
@@ -173,41 +198,43 @@ export default function App() {
         />
 
         <div style={{ flex: 1, padding: "28px 32px", overflowY: "auto", marginTop: (loading || error || !isOnline) ? 50 : 0 }}>
-          {view === "dashboard" && (
-            <Dashboard
-              transactions={transactions}
-              currentMonthStr={CURRENT_MONTH}
-              monthlyBudget={monthlyBudget}
-              setView={setView}
-            />
-          )}
-          {view === "add" && (
-            <AddEntry onAdd={addTransaction} />
-          )}
-          {view === "transactions" && (
-            <Transactions 
-              transactions={transactions} 
-              onDelete={deleteTransaction}
-              onEdit={updateTransaction}
-              editingId={editingId}
-              setEditingId={setEditingId}
-            />
-          )}
-          {view === "reports" && (
-            <Reports
-              transactions={transactions}
-              currentMonthStr={CURRENT_MONTH}
-              monthlyBudget={monthlyBudget}
-            />
-          )}
-          {view === "budget" && (
-            <Budget
-              transactions={transactions}
-              currentMonthStr={CURRENT_MONTH}
-              monthlyBudget={monthlyBudget}
-              setMonthlyBudget={updateBudget}
-            />
-          )}
+          <ErrorBoundary>
+            {view === "dashboard" && (
+              <Dashboard
+                transactions={transactions}
+                currentMonthStr={CURRENT_MONTH}
+                monthlyBudget={monthlyBudget}
+                setView={setView}
+              />
+            )}
+            {view === "add" && (
+              <AddEntry onAdd={addTransaction} />
+            )}
+            {view === "transactions" && (
+              <Transactions
+                transactions={transactions}
+                onDelete={deleteTransaction}
+                onEdit={updateTransaction}
+                editingId={editingId}
+                setEditingId={setEditingId}
+              />
+            )}
+            {view === "reports" && (
+              <Reports
+                transactions={transactions}
+                currentMonthStr={CURRENT_MONTH}
+                monthlyBudget={monthlyBudget}
+              />
+            )}
+            {view === "budget" && (
+              <Budget
+                transactions={transactions}
+                currentMonthStr={CURRENT_MONTH}
+                monthlyBudget={monthlyBudget}
+                setMonthlyBudget={updateBudget}
+              />
+            )}
+          </ErrorBoundary>
         </div>
       </div>
     </>

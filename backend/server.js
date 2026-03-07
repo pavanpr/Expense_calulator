@@ -47,16 +47,31 @@ app.post('/api/transactions', (req, res) => {
   try {
     const { description, amount, category, type, date } = req.body;
 
-    if (!description || !amount || !category || !type || !date) {
-      return res.status(400).json({ 
-        success: false, 
-        error: 'Missing required fields: description, amount, category, type, date' 
-      });
+    // Validate required fields — guard against empty strings, not just missing keys
+    if (!description || !String(description).trim()) {
+      return res.status(400).json({ success: false, error: 'description is required and must not be empty' });
+    }
+
+    const parsedAmount = parseFloat(amount);
+    if (amount === undefined || amount === null || isNaN(parsedAmount) || parsedAmount <= 0) {
+      return res.status(400).json({ success: false, error: 'amount must be a positive number' });
+    }
+
+    if (!category || !String(category).trim()) {
+      return res.status(400).json({ success: false, error: 'category is required' });
+    }
+
+    if (!type || !['expense', 'income'].includes(type)) {
+      return res.status(400).json({ success: false, error: 'type must be "expense" or "income"' });
+    }
+
+    if (!date || !/^\d{4}-\d{2}-\d{2}$/.test(date)) {
+      return res.status(400).json({ success: false, error: 'date must be in YYYY-MM-DD format' });
     }
 
     const transaction = db.addTransaction({
-      description,
-      amount: parseFloat(amount),
+      description: String(description).trim(),
+      amount: parsedAmount,
       category,
       type,
       date,
@@ -73,6 +88,20 @@ app.put('/api/transactions/:id', (req, res) => {
   try {
     const { id } = req.params;
     const updates = req.body;
+
+    // Validate amount if provided
+    if (updates.amount !== undefined) {
+      const parsedAmount = parseFloat(updates.amount);
+      if (isNaN(parsedAmount) || parsedAmount <= 0) {
+        return res.status(400).json({ success: false, error: 'amount must be a positive number' });
+      }
+      updates.amount = parsedAmount;
+    }
+
+    // Validate type if provided
+    if (updates.type !== undefined && !['expense', 'income'].includes(updates.type)) {
+      return res.status(400).json({ success: false, error: 'type must be "expense" or "income"' });
+    }
 
     const updated = db.updateTransaction(parseInt(id), updates);
     if (!updated) {
@@ -125,11 +154,12 @@ app.post('/api/budgets/:month', (req, res) => {
     const { month } = req.params;
     const { amount } = req.body;
 
-    if (!amount) {
-      return res.status(400).json({ success: false, error: 'Amount is required' });
+    const parsedAmount = parseFloat(amount);
+    if (amount === undefined || isNaN(parsedAmount) || parsedAmount <= 0) {
+      return res.status(400).json({ success: false, error: 'amount must be a positive number' });
     }
 
-    const budget = db.setBudget(month, parseFloat(amount));
+    const budget = db.setBudget(month, parsedAmount);
     res.status(201).json({ success: true, data: budget });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });

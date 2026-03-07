@@ -16,12 +16,17 @@ export default function Reports({ transactions, currentMonthStr, monthlyBudget }
   const expenses = filtered.filter(t => t.type === "expense");
   const totalExp = expenses.reduce((s, t) => s + t.amount, 0);
   const totalInc = filtered.filter(t => t.type === "income").reduce((s, t) => s + t.amount, 0);
-  const avg  = expenses.length ? totalExp / expenses.length : 0;
-  const max  = expenses.length ? Math.max(...expenses.map(t => t.amount)) : 0;
+  const avg   = expenses.length ? totalExp / expenses.length : 0;
+  const max   = expenses.length ? Math.max(...expenses.map(t => t.amount)) : 0;
   const maxTx = expenses.find(t => t.amount === max);
 
-  const catMap = {};
-  expenses.forEach(t => { catMap[t.category] = (catMap[t.category] || 0) + t.amount; });
+  // Memoize catMap so it doesn't change on every render and trigger infinite AI calls
+  const catMap = useMemo(() => {
+    const map = {};
+    expenses.forEach(t => { map[t.category] = (map[t.category] || 0) + t.amount; });
+    return map;
+  }, [filtered]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const topCat = Object.entries(catMap).sort((a, b) => b[1] - a[1])[0];
 
   const monthlyTrend = useMemo(() => {
@@ -41,16 +46,20 @@ export default function Reports({ transactions, currentMonthStr, monthlyBudget }
 
   const topCatInfo = topCat ? CATEGORIES.find(c => c.id === topCat[0]) : null;
 
-  // Generate AI insights when data changes
+  // catMap and monthlyTrend are now properly memoized — this effect will only
+  // fire when the underlying data genuinely changes, not on every render.
   useEffect(() => {
+    if (filtered.length === 0) return; // Skip AI call when there's nothing to analyse
     setLoadingInsights(true);
-    generateSpendingInsights(filtered, catMap, monthlyTrend, currentMonthStr).then(insights => {
-      setAiInsights(insights);
-      setLoadingInsights(false);
-    }).catch(() => {
-      setLoadingInsights(false);
-    });
-  }, [filtered, catMap, monthlyTrend]);
+    generateSpendingInsights(filtered, catMap, monthlyTrend, currentMonthStr)
+      .then(insights => {
+        setAiInsights(insights);
+        setLoadingInsights(false);
+      })
+      .catch(() => {
+        setLoadingInsights(false);
+      });
+  }, [filtered, catMap, monthlyTrend, currentMonthStr]);
 
   return (
     <div className="fade-in">
@@ -103,6 +112,9 @@ export default function Reports({ transactions, currentMonthStr, monthlyBudget }
                 </div>
               );
             })}
+            {Object.keys(catMap).length === 0 && (
+              <div style={{ textAlign: "center", padding: 30, color: "#4A5068" }}>No expense data for this period</div>
+            )}
           </div>
         </div>
 
@@ -146,7 +158,7 @@ export default function Reports({ transactions, currentMonthStr, monthlyBudget }
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14 }}>
           {[
             { label: "Savings Rate", value: `${currentIncome > 0 ? Math.round((savings / currentIncome) * 100) : 0}%`, color: savings >= 0 ? "#1DD1A1" : "#FF6B6B", desc: "of monthly income" },
-            { label: "Daily Average", value: formatINR(currentExp / 31), color: "#FF9F43", desc: "per day this month" },
+            { label: "Daily Average", value: formatINR(currentExp / new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate()), color: "#FF9F43", desc: "per day this month" },
             { label: "Fixed Costs",   value: formatINR(currentMonthTx.filter(t => t.type === "expense" && ["housing","utilities","savings"].includes(t.category)).reduce((s, t) => s + t.amount, 0)), color: "#5F27CD", desc: "housing + utilities + SIP" },
           ].map((s, i) => (
             <div key={i} style={{ background: "#1A1D28", borderRadius: 12, padding: 18, textAlign: "center", border: `1px solid ${s.color}33` }}>
@@ -159,51 +171,60 @@ export default function Reports({ transactions, currentMonthStr, monthlyBudget }
       </div>
 
       {/* AI-Powered Insights */}
-      {aiInsights && (
+      {(aiInsights || loadingInsights) && (
         <div className="card" style={{ background: "#6C63FF0A", border: "1px solid #6C63FF33", marginTop: 20 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 15, fontWeight: 600, marginBottom: 16 }}>
             <span>🤖 AI-Powered Insights</span>
-            {loadingInsights && <span style={{ fontSize: 12, color: "#6B7494" }}>(Analyzing...)</span>}
-            {aiInsights.aiGenerated && <span style={{ fontSize: 11, color: "#6C63FF", background: "#6C63FF22", padding: "2px 8px", borderRadius: 4 }}>By Gemini AI</span>}
+            {loadingInsights && <span style={{ fontSize: 12, color: "#6B7494" }}>(Analysing...)</span>}
+            {aiInsights?.aiGenerated && <span style={{ fontSize: 11, color: "#6C63FF", background: "#6C63FF22", padding: "2px 8px", borderRadius: 4 }}>By Gemini AI</span>}
           </div>
 
-          {aiInsights.insights && aiInsights.insights.length > 0 && (
-            <div style={{ marginBottom: 20 }}>
-              <div style={{ fontSize: 13, fontWeight: 600, color: "#D0D6E8", marginBottom: 12 }}>Key Findings:</div>
-              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: 12 }}>
-                {aiInsights.insights.map((insight, i) => {
-                  const bgColor = insight.severity === 'warning' ? '#FF6B6B22' : insight.severity === 'positive' ? '#1DD1A122' : '#54A0FF22';
-                  const borderColor = insight.severity === 'warning' ? '#FF6B6B' : insight.severity === 'positive' ? '#1DD1A1' : '#54A0FF';
-
-                  return (
-                    <div key={i} style={{ background: bgColor, border: `1px solid ${borderColor}`, borderRadius: 10, padding: 14 }}>
-                      <div style={{ fontSize: 24, marginBottom: 8 }}>{insight.emoji}</div>
-                      <div style={{ fontSize: 13, fontWeight: 600, color: "#D0D6E8", marginBottom: 6 }}>{insight.title}</div>
-                      <div style={{ fontSize: 12, color: "#6B7494", lineHeight: 1.5 }}>{insight.description}</div>
-                    </div>
-                  );
-                })}
-              </div>
+          {loadingInsights && (
+            <div style={{ textAlign: "center", padding: 30, color: "#6B7494", fontSize: 13 }}>
+              ⏳ Generating insights from your spending data...
             </div>
           )}
 
-          {aiInsights.recommendations && aiInsights.recommendations.length > 0 && (
-            <div style={{ marginBottom: 16 }}>
-              <div style={{ fontSize: 13, fontWeight: 600, color: "#D0D6E8", marginBottom: 12 }}>Recommendations:</div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-                {aiInsights.recommendations.map((rec, i) => (
-                  <div key={i} style={{ background: "#1A1D28", padding: 12, borderRadius: 8, fontSize: 12, color: "#6B7494", borderLeft: "3px solid #6C63FF" }}>
-                    ✓ {rec}
+          {aiInsights && !loadingInsights && (
+            <>
+              {aiInsights.insights && aiInsights.insights.length > 0 && (
+                <div style={{ marginBottom: 20 }}>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: "#D0D6E8", marginBottom: 12 }}>Key Findings:</div>
+                  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: 12 }}>
+                    {aiInsights.insights.map((insight, i) => {
+                      const bgColor     = insight.severity === 'warning' ? '#FF6B6B22' : insight.severity === 'positive' ? '#1DD1A122' : '#54A0FF22';
+                      const borderColor = insight.severity === 'warning' ? '#FF6B6B'   : insight.severity === 'positive' ? '#1DD1A1'   : '#54A0FF';
+                      return (
+                        <div key={i} style={{ background: bgColor, border: `1px solid ${borderColor}`, borderRadius: 10, padding: 14 }}>
+                          <div style={{ fontSize: 24, marginBottom: 8 }}>{insight.emoji}</div>
+                          <div style={{ fontSize: 13, fontWeight: 600, color: "#D0D6E8", marginBottom: 6 }}>{insight.title}</div>
+                          <div style={{ fontSize: 12, color: "#6B7494", lineHeight: 1.5 }}>{insight.description}</div>
+                        </div>
+                      );
+                    })}
                   </div>
-                ))}
-              </div>
-            </div>
-          )}
+                </div>
+              )}
 
-          {aiInsights.savingsPotential && (
-            <div style={{ background: "#1DD1A122", border: "1px solid #1DD1A1", borderRadius: 10, padding: 12, fontSize: 12, color: "#1DD1A1" }}>
-              💡 <strong>Savings Potential:</strong> {aiInsights.savingsPotential}
-            </div>
+              {aiInsights.recommendations && aiInsights.recommendations.length > 0 && (
+                <div style={{ marginBottom: 16 }}>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: "#D0D6E8", marginBottom: 12 }}>Recommendations:</div>
+                  <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                    {aiInsights.recommendations.map((rec, i) => (
+                      <div key={i} style={{ background: "#1A1D28", padding: 12, borderRadius: 8, fontSize: 12, color: "#6B7494", borderLeft: "3px solid #6C63FF" }}>
+                        ✓ {rec}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {aiInsights.savingsPotential && (
+                <div style={{ background: "#1DD1A122", border: "1px solid #1DD1A1", borderRadius: 10, padding: 12, fontSize: 12, color: "#1DD1A1" }}>
+                  💡 <strong>Savings Potential:</strong> {aiInsights.savingsPotential}
+                </div>
+              )}
+            </>
           )}
         </div>
       )}
