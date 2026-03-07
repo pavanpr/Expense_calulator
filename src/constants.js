@@ -13,29 +13,4 @@ export const CATEGORIES = [
 
 export const MONTHS = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
 
-export const SAMPLE_TRANSACTIONS = [
-  { id: 1,  date: "2026-02-01", description: "Monthly Rent",        amount: 28000, category: "housing",       type: "expense" },
-  { id: 2,  date: "2026-02-03", description: "Grocery - BigBasket", amount: 3200,  category: "food",          type: "expense" },
-  { id: 3,  date: "2026-02-05", description: "Petrol - HP",         amount: 2500,  category: "transport",     type: "expense" },
-  { id: 4,  date: "2026-02-07", description: "Electricity Bill",    amount: 1800,  category: "utilities",     type: "expense" },
-  { id: 5,  date: "2026-02-10", description: "Zomato Orders",       amount: 1400,  category: "food",          type: "expense" },
-  { id: 6,  date: "2026-02-12", description: "Netflix + Spotify",   amount: 899,   category: "entertainment", type: "expense" },
-  { id: 7,  date: "2026-02-14", description: "Apollo Pharmacy",     amount: 650,   category: "health",        type: "expense" },
-  { id: 8,  date: "2026-02-15", description: "Monthly Salary",      amount: 85000, category: "other",         type: "income"  },
-  { id: 9,  date: "2026-02-18", description: "Myntra Shopping",     amount: 4200,  category: "shopping",      type: "expense" },
-  { id: 10, date: "2026-02-20", description: "Internet Bill",       amount: 999,   category: "utilities",     type: "expense" },
-  { id: 11, date: "2026-02-22", description: "SIP Investment",      amount: 10000, category: "savings",       type: "expense" },
-  { id: 12, date: "2026-02-25", description: "Swiggy Instamart",    amount: 880,   category: "food",          type: "expense" },
-  { id: 13, date: "2026-03-01", description: "Monthly Rent",        amount: 28000, category: "housing",       type: "expense" },
-  { id: 14, date: "2026-03-02", description: "Grocery - DMart",     amount: 2900,  category: "food",          type: "expense" },
-  { id: 15, date: "2026-03-04", description: "Ola/Uber Rides",      amount: 1200,  category: "transport",     type: "expense" },
-  { id: 16, date: "2026-03-07", description: "Electricity Bill",    amount: 2100,  category: "utilities",     type: "expense" },
-  { id: 17, date: "2026-03-10", description: "Dining Out",          amount: 2400,  category: "food",          type: "expense" },
-  { id: 18, date: "2026-03-12", description: "Amazon Purchase",     amount: 3800,  category: "shopping",      type: "expense" },
-  { id: 19, date: "2026-03-15", description: "Monthly Salary",      amount: 85000, category: "other",         type: "income"  },
-  { id: 20, date: "2026-03-16", description: "Doctor Visit",        amount: 800,   category: "health",        type: "expense" },
-  { id: 21, date: "2026-03-18", description: "Movie Tickets",       amount: 750,   category: "entertainment", type: "expense" },
-  { id: 22, date: "2026-03-20", description: "SIP Investment",      amount: 10000, category: "savings",       type: "expense" },
-  { id: 23, date: "2026-03-22", description: "Petrol",              amount: 2200,  category: "transport",     type: "expense" },
-  { id: 24, date: "2026-03-25", description: "Freelance Income",    amount: 15000, category: "other",         type: "income"  },
-];
+export const SAMPLE_TRANSACTIONS = [];

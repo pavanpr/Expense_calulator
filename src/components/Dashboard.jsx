@@ -33,10 +33,10 @@ export default function Dashboard({ transactions, currentMonthStr, monthlyBudget
   const maxTrendVal = Math.max(...monthlyTrend.map(m => Math.max(m.income, m.expense)), 1);
 
   const kpis = [
-    { label: "Total Income",   value: formatINR(currentIncome),   color: "#1DD1A1", icon: "↑", sub: "This month" },
-    { label: "Total Expenses", value: formatINR(currentExpenses), color: "#FF6B6B", icon: "↓", sub: "This month" },
-    { label: "Net Savings",    value: formatINR(Math.abs(savings)), color: savings >= 0 ? "#54A0FF" : "#FF6B6B", icon: "◎", sub: savings >= 0 ? "Surplus" : "Deficit" },
-    { label: "Budget Used",    value: `${Math.round(budgetUsed)}%`, color: budgetUsed > 90 ? "#FF6B6B" : "#FF9F43", icon: "◉", sub: `of ${formatINR(monthlyBudget)}` },
+    { label: "Total Income",   value: formatINR(currentIncome),   color: "#6BA69D", icon: "↑", sub: "This month" },
+    { label: "Total Expenses", value: formatINR(currentExpenses), color: "#C85A54", icon: "↓", sub: "This month" },
+    { label: "Net Savings",    value: formatINR(Math.abs(savings)), color: savings >= 0 ? "#6B8CAE" : "#C85A54", icon: "◎", sub: savings >= 0 ? "Surplus" : "Deficit" },
+    { label: "Budget Used",    value: `${Math.round(budgetUsed)}%`, color: budgetUsed > 90 ? "#C85A54" : "#A89968", icon: "◉", sub: `of ${formatINR(monthlyBudget)}` },
   ];
 
   return (
@@ -92,9 +92,9 @@ export default function Dashboard({ transactions, currentMonthStr, monthlyBudget
               <div key={i} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 3 }}>
                 <div style={{ display: "flex", gap: 3, alignItems: "flex-end", height: 130 }}>
                   <div title={`Income: ${formatINRFull(m.income)}`}
-                    style={{ width: 18, height: `${Math.max((m.income / maxTrendVal) * 100, 2)}%`, background: "linear-gradient(180deg,#1DD1A1,#00A085)", borderRadius: "4px 4px 0 0", cursor: "pointer", transition: "height 0.4s ease" }} />
+                    style={{ width: 18, height: `${Math.max((m.income / maxTrendVal) * 100, 2)}%`, background: "linear-gradient(180deg,#6BA69D,#5A9188)", borderRadius: "4px 4px 0 0", cursor: "pointer", transition: "height 0.4s ease" }} />
                   <div title={`Expense: ${formatINRFull(m.expense)}`}
-                    style={{ width: 18, height: `${Math.max((m.expense / maxTrendVal) * 100, 2)}%`, background: "linear-gradient(180deg,#FF6B6B,#CC4444)", borderRadius: "4px 4px 0 0", cursor: "pointer", transition: "height 0.4s ease" }} />
+                    style={{ width: 18, height: `${Math.max((m.expense / maxTrendVal) * 100, 2)}%`, background: "linear-gradient(180deg,#C85A54,#A84A42)", borderRadius: "4px 4px 0 0", cursor: "pointer", transition: "height 0.4s ease" }} />
                 </div>
                 <div style={{ fontSize: 10, color: "#4A5068" }}>{MONTHS[parseInt(m.month.split("-")[1]) - 1]}</div>
               </div>
@@ -102,10 +102,10 @@ export default function Dashboard({ transactions, currentMonthStr, monthlyBudget
           </div>
           <div style={{ display: "flex", gap: 16, marginTop: 8 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 11, color: "#6B7494" }}>
-              <div style={{ width: 10, height: 10, borderRadius: 2, background: "#1DD1A1" }} /> Income
+              <div style={{ width: 10, height: 10, borderRadius: 2, background: "#6BA69D" }} /> Income
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: 5, fontSize: 11, color: "#6B7494" }}>
-              <div style={{ width: 10, height: 10, borderRadius: 2, background: "#FF6B6B" }} /> Expense
+              <div style={{ width: 10, height: 10, borderRadius: 2, background: "#C85A54" }} /> Expense
             </div>
           </div>
         </div>
@@ -135,8 +135,8 @@ export default function Dashboard({ transactions, currentMonthStr, monthlyBudget
                     <div style={{ fontSize: 13, fontWeight: 500, color: "#D0D6E8" }}>{t.description}</div>
                     <div style={{ fontSize: 11, color: "#4A5068", marginTop: 1 }}>{t.date} · {cat.label}</div>
                   </div>
-                  <div style={{ fontSize: 14, fontWeight: 700, color: t.type === "income" ? "#1DD1A1" : "#FF6B6B" }}>
-                    {t.type === "income" ? "+" : "-"}{formatINR(t.amount)}
+                  <div style={{ fontSize: 14, fontWeight: 700, color: t.type === "income" ? "#6BA69D" : "#C85A54" }}>
+                    {t.type === "income" ? "+" : "-"}{formatINRFull(t.amount)}
                   </div>
                 </div>
               );

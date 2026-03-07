@@ -27,12 +27,12 @@ export default function Sidebar({ view, setView, budgetUsed, monthlyBudget, form
           key={item.id}
           onClick={() => setView(item.id)}
           style={{
-            background: "none", border: "none", cursor: "pointer",
+            background: view === item.id ? "#1E2130" : "transparent",
+            border: "none", cursor: "pointer",
             padding: "10px 20px", borderRadius: 10,
             fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 500,
             transition: "all 0.2s",
             color: view === item.id ? "#E8EAF0" : "#6B7494",
-            background: view === item.id ? "#1E2130" : "transparent",
             borderLeft: `3px solid ${view === item.id ? "#6C63FF" : "transparent"}`,
             textAlign: "left", display: "flex", alignItems: "center", gap: 10, width: "100%",
           }}

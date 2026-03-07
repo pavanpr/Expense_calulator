@@ -2,11 +2,12 @@ import React, { useState, useMemo } from 'react';
 import { CATEGORIES, MONTHS } from '../constants.js';
 import { formatINR, formatINRFull } from '../utils.js';
 
-export default function Transactions({ transactions, onDelete }) {
+export default function Transactions({ transactions, onDelete, onEdit, editingId, setEditingId }) {
   const [filterMonth,    setFilterMonth]    = useState("all");
   const [filterCategory, setFilterCategory] = useState("all");
   const [filterType,     setFilterType]     = useState("all");
   const [sortKey,        setSortKey]        = useState("date-desc");
+  const [editForm, setEditForm] = useState({});
 
   const uniqueMonths = [...new Set(transactions.map(t => t.date.slice(0, 7)))].sort().reverse();
 
@@ -60,9 +61,9 @@ export default function Transactions({ transactions, onDelete }) {
       {/* Summary */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, marginBottom: 20 }}>
         {[
-          { label: "Total Expenses", value: totalExp,            color: "#FF6B6B" },
-          { label: "Total Income",   value: totalInc,            color: "#1DD1A1" },
-          { label: "Net",            value: totalInc - totalExp, color: totalInc - totalExp >= 0 ? "#54A0FF" : "#FF6B6B" },
+          { label: "Total Expenses", value: totalExp,            color: "#C85A54" },
+          { label: "Total Income",   value: totalInc,            color: "#6BA69D" },
+          { label: "Net",            value: totalInc - totalExp, color: totalInc - totalExp >= 0 ? "#6B8CAE" : "#C85A54" },
         ].map((s, i) => (
           <div key={i} style={{ background: "#1A1D28", border: "1px solid #252A3A", borderRadius: 12, padding: "14px 18px" }}>
             <div style={{ fontSize: 11, color: "#4A5068", marginBottom: 4 }}>{s.label}</div>
@@ -74,48 +75,135 @@ export default function Transactions({ transactions, onDelete }) {
       {/* Table */}
       <div className="card" style={{ padding: 0, overflow: "hidden" }}>
         <div style={{
-          display: "grid", gridTemplateColumns: "100px 1fr 140px 130px 80px 40px",
+          display: "grid", gridTemplateColumns: "100px 1fr 140px 130px 80px 80px",
           padding: "12px 20px", borderBottom: "1px solid #1E2436",
           fontSize: 11, color: "#4A5068", fontWeight: 600, letterSpacing: "0.5px",
         }}>
           <span>DATE</span><span>DESCRIPTION</span><span>CATEGORY</span>
           <span style={{ textAlign: "right" }}>AMOUNT</span>
-          <span style={{ textAlign: "center" }}>TYPE</span><span />
+          <span style={{ textAlign: "center" }}>TYPE</span><span style={{ textAlign: "center" }}>ACTIONS</span>
         </div>
         <div style={{ maxHeight: "60vh", overflowY: "auto" }}>
           {filtered.map(t => {
             const cat = CATEGORIES.find(c => c.id === t.category);
+            const isEditing = editingId === t.id;
+            const currentForm = editForm[t.id] || t;
+            const currentCat = CATEGORIES.find(c => c.id === currentForm.category);
+            
             return (
-              <div key={t.id} className="tx-row" style={{
-                display: "grid", gridTemplateColumns: "100px 1fr 140px 130px 80px 40px",
-                padding: "12px 20px", borderBottom: "1px solid #12151E", alignItems: "center",
-              }}>
-                <span style={{ fontSize: 12, color: "#4A5068" }}>{t.date}</span>
-                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <div style={{ width: 30, height: 30, borderRadius: 8, background: `${cat.color}22`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14 }}>
-                    {cat.icon}
+              <div key={t.id}>
+                {isEditing ? (
+                  // Edit Mode
+                  <div style={{
+                    display: "grid", gridTemplateColumns: "100px 1fr 140px 130px 80px 80px",
+                    padding: "12px 20px", borderBottom: "1px solid #12151E", alignItems: "center",
+                    background: "#1A1D28",
+                  }}>
+                    <input
+                      type="date"
+                      value={currentForm.date}
+                      onChange={(e) => setEditForm(prev => ({ ...prev, [t.id]: { ...currentForm, date: e.target.value } }))}
+                      style={{ fontSize: 12, padding: "4px 8px", borderRadius: 6, background: "#0D0F14", border: "1px solid #252A3A", color: "#D0D6E8" }}
+                    />
+                    <input
+                      type="text"
+                      value={currentForm.description}
+                      onChange={(e) => setEditForm(prev => ({ ...prev, [t.id]: { ...currentForm, description: e.target.value } }))}
+                      placeholder="Description"
+                      style={{ fontSize: 13, padding: "4px 8px", borderRadius: 6, background: "#0D0F14", border: "1px solid #252A3A", color: "#D0D6E8" }}
+                    />
+                    <select
+                      value={currentForm.category}
+                      onChange={(e) => setEditForm(prev => ({ ...prev, [t.id]: { ...currentForm, category: e.target.value } }))}
+                      style={{ fontSize: 12, padding: "4px 8px", borderRadius: 6, background: "#0D0F14", border: "1px solid #252A3A", color: "#D0D6E8" }}
+                    >
+                      {CATEGORIES.map(c => <option key={c.id} value={c.id}>{c.icon} {c.label}</option>)}
+                    </select>
+                    <input
+                      type="number"
+                      value={currentForm.amount}
+                      onChange={(e) => setEditForm(prev => ({ ...prev, [t.id]: { ...currentForm, amount: parseFloat(e.target.value) || 0 } }))}
+                      style={{ fontSize: 12, padding: "4px 8px", borderRadius: 6, background: "#0D0F14", border: "1px solid #252A3A", color: "#D0D6E8", textAlign: "right" }}
+                    />
+                    <select
+                      value={currentForm.type}
+                      onChange={(e) => setEditForm(prev => ({ ...prev, [t.id]: { ...currentForm, type: e.target.value } }))}
+                      style={{ fontSize: 12, padding: "4px 8px", borderRadius: 6, background: "#0D0F14", border: "1px solid #252A3A", color: "#D0D6E8" }}
+                    >
+                      <option value="expense">Expense</option>
+                      <option value="income">Income</option>
+                    </select>
+                    <div style={{ display: "flex", gap: 4, justifyContent: "center" }}>
+                      <button
+                        onClick={() => {
+                          onEdit(t.id, currentForm);
+                        }}
+                        title="Save"
+                        style={{ background: "#6BA69D", border: "none", color: "white", cursor: "pointer", fontSize: 14, padding: "4px 8px", borderRadius: 6, fontWeight: 700 }}
+                      >
+                        ✓
+                      </button>
+                      <button
+                        onClick={() => {
+                          setEditingId(null);
+                          setEditForm(prev => { const copy = { ...prev }; delete copy[t.id]; return copy; });
+                        }}
+                        title="Cancel"
+                        style={{ background: "#C85A54", border: "none", color: "white", cursor: "pointer", fontSize: 14, padding: "4px 8px", borderRadius: 6, fontWeight: 700 }}
+                      >
+                        ✕
+                      </button>
+                    </div>
                   </div>
-                  <span style={{ fontSize: 13, color: "#D0D6E8", fontWeight: 500 }}>{t.description}</span>
-                </div>
-                <span>
-                  <span style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "3px 10px", borderRadius: 20, fontSize: 12, fontWeight: 500, background: `${cat.color}22`, color: cat.color }}>
-                    {cat.label}
-                  </span>
-                </span>
-                <span style={{ fontSize: 14, fontWeight: 700, color: t.type === "income" ? "#1DD1A1" : "#FF6B6B", textAlign: "right" }}>
-                  {t.type === "income" ? "+" : "-"}{formatINRFull(t.amount)}
-                </span>
-                <span style={{ textAlign: "center" }}>
-                  <span style={{ display: "inline-flex", alignItems: "center", padding: "3px 10px", borderRadius: 20, fontSize: 12, fontWeight: 500, background: t.type === "income" ? "#1DD1A122" : "#FF6B6B22", color: t.type === "income" ? "#1DD1A1" : "#FF6B6B" }}>
-                    {t.type}
-                  </span>
-                </span>
-                <button onClick={() => onDelete(t.id)}
-                  style={{ background: "none", border: "none", color: "#3A3F55", cursor: "pointer", fontSize: 18, padding: "4px 8px", borderRadius: 6, transition: "all 0.15s" }}
-                  onMouseEnter={e => { e.target.style.color = "#FF6B6B"; e.target.style.background = "rgba(255,107,107,0.1)"; }}
-                  onMouseLeave={e => { e.target.style.color = "#3A3F55"; e.target.style.background = "none"; }}>
-                  ×
-                </button>
+                ) : (
+                  // View Mode
+                  <div className="tx-row" style={{
+                    display: "grid", gridTemplateColumns: "100px 1fr 140px 130px 80px 80px",
+                    padding: "12px 20px", borderBottom: "1px solid #12151E", alignItems: "center",
+                  }}>
+                    <span style={{ fontSize: 12, color: "#4A5068" }}>{t.date}</span>
+                    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                      <div style={{ width: 30, height: 30, borderRadius: 8, background: `${cat.color}22`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14 }}>
+                        {cat.icon}
+                      </div>
+                      <span style={{ fontSize: 13, color: "#D0D6E8", fontWeight: 500 }}>{t.description}</span>
+                    </div>
+                    <span>
+                      <span style={{ display: "inline-flex", alignItems: "center", gap: 4, padding: "3px 10px", borderRadius: 20, fontSize: 12, fontWeight: 500, background: `${cat.color}22`, color: cat.color }}>
+                        {cat.label}
+                      </span>
+                    </span>
+                    <span style={{ fontSize: 14, fontWeight: 700, color: t.type === "income" ? "#6BA69D" : "#C85A54", textAlign: "right" }}>
+                      {t.type === "income" ? "+" : "-"}{formatINRFull(t.amount)}
+                    </span>
+                    <span style={{ textAlign: "center" }}>
+                      <span style={{ display: "inline-flex", alignItems: "center", padding: "3px 10px", borderRadius: 20, fontSize: 12, fontWeight: 500, background: t.type === "income" ? "#6BA69D22" : "#C85A5422", color: t.type === "income" ? "#6BA69D" : "#C85A54" }}>
+                        {t.type}
+                      </span>
+                    </span>
+                    <div style={{ display: "flex", gap: 6, justifyContent: "center" }}>
+                      <button
+                        onClick={() => {
+                          setEditingId(t.id);
+                          setEditForm(prev => ({ ...prev, [t.id]: t }));
+                        }}
+                        title="Edit"
+                        style={{ background: "none", border: "none", color: "#7D6C89", cursor: "pointer", fontSize: 16, padding: "4px 6px", borderRadius: 4, transition: "all 0.15s" }}
+                        onMouseEnter={e => { e.target.style.color = "#8B7B97"; e.target.style.background = "rgba(125,108,137,0.1)"; }}
+                        onMouseLeave={e => { e.target.style.color = "#7D6C89"; e.target.style.background = "none"; }}>
+                        ✎
+                      </button>
+                      <button
+                        onClick={() => onDelete(t.id)}
+                        title="Delete"
+                        style={{ background: "none", border: "none", color: "#3A3F55", cursor: "pointer", fontSize: 18, padding: "4px 6px", borderRadius: 4, transition: "all 0.15s" }}
+                        onMouseEnter={e => { e.target.style.color = "#C85A54"; e.target.style.background = "rgba(200,90,84,0.1)"; }}
+                        onMouseLeave={e => { e.target.style.color = "#3A3F55"; e.target.style.background = "none"; }}>
+                        ×
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             );
           })}

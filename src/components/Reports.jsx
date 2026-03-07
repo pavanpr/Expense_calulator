@@ -1,9 +1,12 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { CATEGORIES, MONTHS } from '../constants.js';
 import { formatINR, formatINRFull } from '../utils.js';
+import { generateSpendingInsights } from '../services/insightsService.js';
 
 export default function Reports({ transactions, currentMonthStr, monthlyBudget }) {
   const [filterMonth, setFilterMonth] = useState("all");
+  const [aiInsights, setAiInsights] = useState(null);
+  const [loadingInsights, setLoadingInsights] = useState(false);
   const uniqueMonths = [...new Set(transactions.map(t => t.date.slice(0, 7)))].sort().reverse();
 
   const filtered = useMemo(() =>
@@ -37,6 +40,17 @@ export default function Reports({ transactions, currentMonthStr, monthlyBudget }
   const savings        = currentIncome - currentExp;
 
   const topCatInfo = topCat ? CATEGORIES.find(c => c.id === topCat[0]) : null;
+
+  // Generate AI insights when data changes
+  useEffect(() => {
+    setLoadingInsights(true);
+    generateSpendingInsights(filtered, catMap, monthlyTrend, currentMonthStr).then(insights => {
+      setAiInsights(insights);
+      setLoadingInsights(false);
+    }).catch(() => {
+      setLoadingInsights(false);
+    });
+  }, [filtered, catMap, monthlyTrend]);
 
   return (
     <div className="fade-in">
@@ -143,6 +157,56 @@ export default function Reports({ transactions, currentMonthStr, monthlyBudget }
           ))}
         </div>
       </div>
+
+      {/* AI-Powered Insights */}
+      {aiInsights && (
+        <div className="card" style={{ background: "#6C63FF0A", border: "1px solid #6C63FF33", marginTop: 20 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 15, fontWeight: 600, marginBottom: 16 }}>
+            <span>🤖 AI-Powered Insights</span>
+            {loadingInsights && <span style={{ fontSize: 12, color: "#6B7494" }}>(Analyzing...)</span>}
+            {aiInsights.aiGenerated && <span style={{ fontSize: 11, color: "#6C63FF", background: "#6C63FF22", padding: "2px 8px", borderRadius: 4 }}>By Gemini AI</span>}
+          </div>
+
+          {aiInsights.insights && aiInsights.insights.length > 0 && (
+            <div style={{ marginBottom: 20 }}>
+              <div style={{ fontSize: 13, fontWeight: 600, color: "#D0D6E8", marginBottom: 12 }}>Key Findings:</div>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: 12 }}>
+                {aiInsights.insights.map((insight, i) => {
+                  const bgColor = insight.severity === 'warning' ? '#FF6B6B22' : insight.severity === 'positive' ? '#1DD1A122' : '#54A0FF22';
+                  const borderColor = insight.severity === 'warning' ? '#FF6B6B' : insight.severity === 'positive' ? '#1DD1A1' : '#54A0FF';
+
+                  return (
+                    <div key={i} style={{ background: bgColor, border: `1px solid ${borderColor}`, borderRadius: 10, padding: 14 }}>
+                      <div style={{ fontSize: 24, marginBottom: 8 }}>{insight.emoji}</div>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: "#D0D6E8", marginBottom: 6 }}>{insight.title}</div>
+                      <div style={{ fontSize: 12, color: "#6B7494", lineHeight: 1.5 }}>{insight.description}</div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {aiInsights.recommendations && aiInsights.recommendations.length > 0 && (
+            <div style={{ marginBottom: 16 }}>
+              <div style={{ fontSize: 13, fontWeight: 600, color: "#D0D6E8", marginBottom: 12 }}>Recommendations:</div>
+              <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+                {aiInsights.recommendations.map((rec, i) => (
+                  <div key={i} style={{ background: "#1A1D28", padding: 12, borderRadius: 8, fontSize: 12, color: "#6B7494", borderLeft: "3px solid #6C63FF" }}>
+                    ✓ {rec}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {aiInsights.savingsPotential && (
+            <div style={{ background: "#1DD1A122", border: "1px solid #1DD1A1", borderRadius: 10, padding: 12, fontSize: 12, color: "#1DD1A1" }}>
+              💡 <strong>Savings Potential:</strong> {aiInsights.savingsPotential}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
