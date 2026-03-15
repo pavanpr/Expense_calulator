@@ -1,23 +1,193 @@
+/* ─── Reset ──────────────────────────────────────────────── */
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
 }
 
-body {
-  background: #0D0F14;
-  color: #E8EAF0;
-  font-family: 'DM Sans', sans-serif;
-  -webkit-font-smoothing: antialiased;
+/* ─── Design Tokens ──────────────────────────────────────── */
+:root {
+  /* Dark theme (default) */
+  --bg-base:        #0E1017;
+  --bg-surface:     #151820;
+  --bg-elevated:    #1C2030;
+  --bg-hover:       #222638;
+  --border:         #252B3E;
+  --border-subtle:  #1A1F30;
+
+  --text-primary:   #E4E8F4;
+  --text-secondary: #8A93B0;
+  --text-muted:     #4E566E;
+  --text-dim:       #2E3450;
+
+  /* Accent palette — rich, flat */
+  --violet:         #7B6EF6;
+  --violet-muted:   #2E2A5A;
+  --teal:           #3DB89C;
+  --teal-muted:     #1A3530;
+  --amber:          #D4922A;
+  --amber-muted:    #3A2810;
+  --rose:           #C95F6E;
+  --rose-muted:     #3A1820;
+  --sky:            #4A9FD4;
+  --sky-muted:      #142338;
+  --sage:           #5E9E7A;
+  --sage-muted:     #182A22;
+
+  /* Semantic */
+  --income:         #3DB89C;
+  --expense:        #C95F6E;
+  --warning:        #D4922A;
+
+  /* Scrollbar */
+  --scrollbar-track: #151820;
+  --scrollbar-thumb: #252B3E;
+
+  color-scheme: dark;
 }
 
-::-webkit-scrollbar {
-  width: 4px;
+/* ─── Light Theme ────────────────────────────────────────── */
+[data-theme="light"] {
+  --bg-base:        #F5F0E8;
+  --bg-surface:     #EDE8DC;
+  --bg-elevated:    #E4DDD0;
+  --bg-hover:       #D9D2C4;
+  --border:         #C8BFB0;
+  --border-subtle:  #D4CCBC;
+
+  --text-primary:   #1C1A14;
+  --text-secondary: #4A4538;
+  --text-muted:     #7A7264;
+  --text-dim:       #A09888;
+
+  /* Accent palette — same hue, adjusted for warmth */
+  --violet:         #5B4ECC;
+  --violet-muted:   #DDD9F4;
+  --teal:           #2A8A72;
+  --teal-muted:     #C8EDE6;
+  --amber:          #B8760E;
+  --amber-muted:    #F5E4C4;
+  --rose:           #A8404E;
+  --rose-muted:     #F4D4D8;
+  --sky:            #2E7BAE;
+  --sky-muted:      #C8DFF0;
+  --sage:           #3A7A58;
+  --sage-muted:     #C8E8D8;
+
+  /* Semantic */
+  --income:         #2A8A72;
+  --expense:        #A8404E;
+  --warning:        #B8760E;
+
+  --scrollbar-track: #E4DDD0;
+  --scrollbar-thumb: #C8BFB0;
+
+  color-scheme: light;
 }
-::-webkit-scrollbar-track {
-  background: #1A1D26;
+
+/* ─── Base ───────────────────────────────────────────────── */
+body {
+  background: var(--bg-base);
+  color: var(--text-primary);
+  font-family: 'DM Sans', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  transition: background 0.25s ease, color 0.25s ease;
 }
-::-webkit-scrollbar-thumb {
-  background: #2E3347;
-  border-radius: 2px;
+
+/* ─── Scrollbar ──────────────────────────────────────────── */
+::-webkit-scrollbar        { width: 4px; }
+::-webkit-scrollbar-track  { background: var(--scrollbar-track); }
+::-webkit-scrollbar-thumb  { background: var(--scrollbar-thumb); border-radius: 2px; }
+
+/* ─── Shared Component Classes ───────────────────────────── */
+.card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.btn-primary {
+  background: var(--violet);
+  border: none;
+  color: #fff;
+  padding: 10px 20px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  transition: opacity 0.15s, transform 0.15s;
+}
+.btn-primary:hover  { opacity: 0.88; transform: translateY(-1px); }
+.btn-primary:active { opacity: 1;    transform: none; }
+
+.input-field {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 10px 14px;
+  color: var(--text-primary);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  width: 100%;
+  transition: border-color 0.2s, background 0.2s;
+}
+.input-field:focus         { border-color: var(--violet); outline: none; }
+.input-field::placeholder  { color: var(--text-muted); }
+select.input-field option  { background: var(--bg-elevated); color: var(--text-primary); }
+
+.tx-row {
+  border-radius: 8px;
+  transition: background 0.12s;
+}
+.tx-row:hover { background: var(--bg-hover); }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0);   }
+}
+.fade-in { animation: fadeIn 0.28s ease; }
+
+/* ─── Category color chips ───────────────────────────────── */
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* ─── Progress bar ───────────────────────────────────────── */
+.progress-track {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--border);
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 0.5s ease;
+}
+
+/* ─── Theme toggle button ────────────────────────────────── */
+.theme-toggle {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  padding: 6px 10px;
+  font-size: 16px;
+  color: var(--text-secondary);
+  transition: background 0.2s, border-color 0.2s;
+  line-height: 1;
+}
+.theme-toggle:hover {
+  background: var(--bg-hover);
+  border-color: var(--violet);
+  color: var(--violet);
 }
