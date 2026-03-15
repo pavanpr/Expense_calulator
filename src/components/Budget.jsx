@@ -20,10 +20,10 @@ export default function Budget({ transactions, currentMonthStr, monthlyBudget, s
   }));
 
   const barColor = budgetUsed > 90
-    ? "linear-gradient(90deg,#FF6B6B,#FF4444)"
+    ? "linear-gradient(90deg,#C85A54,#A84A42)"
     : budgetUsed > 70
-      ? "linear-gradient(90deg,#FF9F43,#FF7F00)"
-      : "linear-gradient(90deg,#1DD1A1,#00A085)";
+      ? "linear-gradient(90deg,#A89968,#8A7B52)"
+      : "linear-gradient(90deg,#6BA69D,#5A9188)";
 
   const statusText = budgetUsed > 100
     ? "⚠️ Over budget!"
@@ -67,16 +67,16 @@ export default function Budget({ transactions, currentMonthStr, monthlyBudget, s
         <div style={{ marginBottom: 14 }}>
           <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8 }}>
             <span style={{ fontSize: 13, color: "#6B7494" }}>
-              Spent: <strong style={{ color: "#FF6B6B" }}>{formatINRFull(currentExpenses)}</strong>
+              Spent: <strong style={{ color: "#C85A54" }}>{formatINRFull(currentExpenses)}</strong>
             </span>
             <span style={{ fontSize: 13, color: "#6B7494" }}>
-              Remaining: <strong style={{ color: budgetUsed > 100 ? "#FF6B6B" : "#1DD1A1" }}>{formatINRFull(remaining)}</strong>
+              Remaining: <strong style={{ color: budgetUsed > 100 ? "#C85A54" : "#6BA69D" }}>{formatINRFull(remaining)}</strong>
             </span>
           </div>
           <div style={{ height: 12, borderRadius: 6, background: "#1E2436", overflow: "hidden" }}>
             <div style={{ height: "100%", borderRadius: 6, width: `${Math.min(budgetUsed, 100)}%`, background: barColor, transition: "width 0.6s ease" }} />
           </div>
-          <div style={{ textAlign: "center", marginTop: 10, fontSize: 13, color: budgetUsed > 90 ? "#FF6B6B" : "#6B7494", fontWeight: 600 }}>
+          <div style={{ textAlign: "center", marginTop: 10, fontSize: 13, color: budgetUsed > 90 ? "#C85A54" : "#6B7494", fontWeight: 600 }}>
             {Math.round(budgetUsed)}% of budget used — {statusText}
           </div>
         </div>

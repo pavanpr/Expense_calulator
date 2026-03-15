@@ -9,6 +9,38 @@ import Reports from './components/Reports.jsx';
 import Budget from './components/Budget.jsx';
 import ErrorBoundary from './components/ErrorBoundary.jsx';
 
+// Theme configurations
+const themes = {
+  dark: {
+    bg: '#0D0F14',
+    text: '#E8EAF0',
+    card: '#161923',
+    border: '#1E2436',
+    input: '#1A1D28',
+    inputBorder: '#252A3A',
+    hover: '#1A1D28',
+    muted: '#4A5068',
+    expense: '#C85A54',
+    income: '#6BA69D',
+    neutral: '#6B8CAE',
+    warning: '#A89968',
+  },
+  light: {
+    bg: '#FAFAF8',
+    text: '#1A1A1A',
+    card: '#FFFFFF',
+    border: '#E8E6E1',
+    input: '#F5F3F0',
+    inputBorder: '#D4D0C8',
+    hover: '#F0EEEB',
+    muted: '#7A7A7A',
+    expense: '#C85A54',
+    income: '#6BA69D',
+    neutral: '#6B8CAE',
+    warning: '#A89968',
+  },
+};
+
 // Derive current month dynamically so the app stays accurate over time
 function getCurrentMonth() {
   const now = new Date();
@@ -27,6 +59,7 @@ export default function App() {
   const [error, setError]                 = useState(null);
   const [isOnline, setIsOnline]           = useState(navigator.onLine);
   const [editingId, setEditingId]         = useState(null);
+  const [theme, setTheme]                 = useState(() => localStorage.getItem('theme') || 'dark');
 
   // Load data from API on mount
   React.useEffect(() => {
@@ -139,23 +172,29 @@ export default function App() {
     }
   };
 
+  const toggleTheme = () => {
+    const newTheme = theme === 'dark' ? 'light' : 'dark';
+    setTheme(newTheme);
+    localStorage.setItem('theme', newTheme);
+  };
+
   return (
     <>
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600;700&family=Playfair+Display:wght@700&display=swap');
-        .card { background: #161923; border: 1px solid #1E2436; border-radius: 16px; padding: 20px; }
-        .btn-primary { background: linear-gradient(135deg,#6C63FF,#9B59B6); border: none; color: white; padding: 10px 20px; border-radius: 10px; cursor: pointer; font-family: 'DM Sans',sans-serif; font-weight: 600; font-size: 14px; transition: all 0.2s; }
-        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 20px rgba(108,99,255,0.4); }
-        .input-field { background: #1A1D28; border: 1px solid #252A3A; border-radius: 10px; padding: 10px 14px; color: #E8EAF0; font-family: 'DM Sans',sans-serif; font-size: 14px; width: 100%; transition: border 0.2s; }
-        .input-field:focus { border-color: #6C63FF; outline: none; }
-        select.input-field option { background: #1A1D28; }
-        .tx-row:hover { background: #1A1D28; }
+        .card { background: ${themes[theme].card}; border: 1px solid ${themes[theme].border}; border-radius: 16px; padding: 20px; }
+        .btn-primary { background: linear-gradient(135deg,#7D6C89,#8B7B97); border: none; color: white; padding: 10px 20px; border-radius: 10px; cursor: pointer; font-family: 'DM Sans',sans-serif; font-weight: 600; font-size: 14px; transition: all 0.2s; }
+        .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 20px rgba(125,108,137,0.4); }
+        .input-field { background: ${themes[theme].input}; border: 1px solid ${themes[theme].inputBorder}; border-radius: 10px; padding: 10px 14px; color: ${themes[theme].text}; font-family: 'DM Sans',sans-serif; font-size: 14px; width: 100%; transition: border 0.2s; }
+        .input-field:focus { border-color: #7D6C89; outline: none; }
+        select.input-field option { background: ${themes[theme].input}; color: ${themes[theme].text}; }
+        .tx-row:hover { background: ${themes[theme].hover}; }
         .tx-row { border-radius: 10px; transition: background 0.15s; }
         @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
         .fade-in { animation: fadeIn 0.3s ease; }
       `}</style>
 
-      <div style={{ display: "flex", minHeight: "100vh", fontFamily: "'DM Sans', sans-serif", background: "#0D0F14", color: "#E8EAF0" }}>
+      <div style={{ display: "flex", minHeight: "100vh", fontFamily: "'DM Sans', sans-serif", background: themes[theme].bg, color: themes[theme].text }}>
         {/* Status Bar */}
         {(loading || error || !isOnline) && (
           <div style={{
@@ -164,10 +203,10 @@ export default function App() {
             left: 0,
             right: 0,
             padding: "12px 16px",
-            background: loading ? "#54A0FF22" : error ? "#FF6B6B22" : "#F9CA2422",
-            borderBottom: `1px solid ${loading ? "#54A0FF" : error ? "#FF6B6B" : "#F9CA24"}`,
+            background: loading ? "#6B8CAE22" : error ? "#C85A5422" : "#A8996822",
+            borderBottom: `1px solid ${loading ? "#6B8CAE" : error ? "#C85A54" : "#A89968"}`,
             fontSize: 13,
-            color: loading ? "#54A0FF" : error ? "#FF6B6B" : "#F9CA24",
+            color: loading ? "#6B8CAE" : error ? "#C85A54" : "#A89968",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
@@ -181,7 +220,7 @@ export default function App() {
             {error && (
               <button
                 onClick={loadData}
-                style={{ background: "#FF6B6B", color: "white", border: "none", padding: "4px 12px", borderRadius: 4, cursor: "pointer", fontSize: 12 }}
+                style={{ background: "#C85A54", color: "white", border: "none", padding: "4px 12px", borderRadius: 4, cursor: "pointer", fontSize: 12 }}
               >
                 Retry
               </button>
@@ -195,6 +234,9 @@ export default function App() {
           budgetUsed={budgetUsed}
           monthlyBudget={monthlyBudget}
           formatINR={formatINR}
+          theme={theme}
+          toggleTheme={toggleTheme}
+          themeConfig={themes[theme]}
         />
 
         <div style={{ flex: 1, padding: "28px 32px", overflowY: "auto", marginTop: (loading || error || !isOnline) ? 50 : 0 }}>
@@ -205,6 +247,7 @@ export default function App() {
                 currentMonthStr={CURRENT_MONTH}
                 monthlyBudget={monthlyBudget}
                 setView={setView}
+                themeConfig={themes[theme]}
               />
             )}
             {view === "add" && (
@@ -217,6 +260,7 @@ export default function App() {
                 onEdit={updateTransaction}
                 editingId={editingId}
                 setEditingId={setEditingId}
+                themeConfig={themes[theme]}
               />
             )}
             {view === "reports" && (
@@ -224,6 +268,7 @@ export default function App() {
                 transactions={transactions}
                 currentMonthStr={CURRENT_MONTH}
                 monthlyBudget={monthlyBudget}
+                themeConfig={themes[theme]}
               />
             )}
             {view === "budget" && (
@@ -232,6 +277,7 @@ export default function App() {
                 currentMonthStr={CURRENT_MONTH}
                 monthlyBudget={monthlyBudget}
                 setMonthlyBudget={updateBudget}
+                themeConfig={themes[theme]}
               />
             )}
           </ErrorBoundary>

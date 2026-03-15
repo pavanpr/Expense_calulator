@@ -76,10 +76,10 @@ export default function Reports({ transactions, currentMonthStr, monthlyBudget }
       {/* Summary Stats */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14, marginBottom: 24 }}>
         {[
-          { label: "Total Spent",         value: formatINRFull(totalExp),  color: "#FF6B6B", sub: `${expenses.length} transactions` },
-          { label: "Average Transaction", value: formatINR(avg),           color: "#FF9F43", sub: "per expense" },
-          { label: "Largest Expense",     value: formatINR(max),           color: "#54A0FF", sub: maxTx?.description || "—" },
-          { label: "Top Category",        value: topCatInfo ? `${topCatInfo.icon} ${topCatInfo.label}` : "—", color: "#1DD1A1", sub: topCat ? formatINR(topCat[1]) : "" },
+          { label: "Total Spent",         value: formatINRFull(totalExp),  color: "#C85A54", sub: `${expenses.length} transactions` },
+          { label: "Average Transaction", value: formatINR(avg),           color: "#A89968", sub: "per expense" },
+          { label: "Largest Expense",     value: formatINR(max),           color: "#6B8CAE", sub: maxTx?.description || "—" },
+          { label: "Top Category",        value: topCatInfo ? `${topCatInfo.icon} ${topCatInfo.label}` : "—", color: "#6BA69D", sub: topCat ? formatINR(topCat[1]) : "" },
         ].map((s, i) => (
           <div key={i} className="card" style={{ borderLeft: `3px solid ${s.color}` }}>
             <div style={{ fontSize: 11, color: "#4A5068", fontWeight: 500, marginBottom: 8 }}>{s.label}</div>
@@ -133,15 +133,15 @@ export default function Reports({ transactions, currentMonthStr, monthlyBudget }
                       {MONTHS[parseInt(m.month.split("-")[1]) - 1]} {m.month.split("-")[0]}
                     </span>
                     {prev && (
-                      <span style={{ fontSize: 11, color: diff > 0 ? "#FF6B6B" : "#1DD1A1", fontWeight: 600 }}>
+                      <span style={{ fontSize: 11, color: diff > 0 ? "#C85A54" : "#6BA69D", fontWeight: 600 }}>
                         {diff > 0 ? "▲" : "▼"} {Math.abs(pct).toFixed(1)}%
                       </span>
                     )}
                   </div>
                   <div style={{ display: "flex", gap: 16 }}>
-                    <span style={{ fontSize: 12, color: "#1DD1A1" }}>↑ {formatINR(m.income)}</span>
-                    <span style={{ fontSize: 12, color: "#FF6B6B" }}>↓ {formatINR(m.expense)}</span>
-                    <span style={{ fontSize: 12, color: m.income - m.expense >= 0 ? "#54A0FF" : "#FF6B6B" }}>
+                    <span style={{ fontSize: 12, color: "#6BA69D" }}>↑ {formatINR(m.income)}</span>
+                    <span style={{ fontSize: 12, color: "#C85A54" }}>↓ {formatINR(m.expense)}</span>
+                    <span style={{ fontSize: 12, color: m.income - m.expense >= 0 ? "#6B8CAE" : "#C85A54" }}>
                       = {formatINR(m.income - m.expense)}
                     </span>
                   </div>
@@ -157,9 +157,9 @@ export default function Reports({ transactions, currentMonthStr, monthlyBudget }
         <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 16 }}>Spending Insights</div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14 }}>
           {[
-            { label: "Savings Rate", value: `${currentIncome > 0 ? Math.round((savings / currentIncome) * 100) : 0}%`, color: savings >= 0 ? "#1DD1A1" : "#FF6B6B", desc: "of monthly income" },
-            { label: "Daily Average", value: formatINR(currentExp / new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate()), color: "#FF9F43", desc: "per day this month" },
-            { label: "Fixed Costs",   value: formatINR(currentMonthTx.filter(t => t.type === "expense" && ["housing","utilities","savings"].includes(t.category)).reduce((s, t) => s + t.amount, 0)), color: "#5F27CD", desc: "housing + utilities + SIP" },
+            { label: "Savings Rate", value: `${currentIncome > 0 ? Math.round((savings / currentIncome) * 100) : 0}%`, color: savings >= 0 ? "#6BA69D" : "#C85A54", desc: "of monthly income" },
+            { label: "Daily Average", value: formatINR(currentExp / new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate()), color: "#A89968", desc: "per day this month" },
+            { label: "Fixed Costs",   value: formatINR(currentMonthTx.filter(t => t.type === "expense" && ["housing","utilities","savings"].includes(t.category)).reduce((s, t) => s + t.amount, 0)), color: "#7D6C89", desc: "housing + utilities + SIP" },
           ].map((s, i) => (
             <div key={i} style={{ background: "#1A1D28", borderRadius: 12, padding: 18, textAlign: "center", border: `1px solid ${s.color}33` }}>
               <div style={{ fontSize: 26, fontWeight: 700, color: s.color }}>{s.value}</div>
@@ -172,11 +172,11 @@ export default function Reports({ transactions, currentMonthStr, monthlyBudget }
 
       {/* AI-Powered Insights */}
       {(aiInsights || loadingInsights) && (
-        <div className="card" style={{ background: "#6C63FF0A", border: "1px solid #6C63FF33", marginTop: 20 }}>
+        <div className="card" style={{ background: "#7D6C890A", border: "1px solid #7D6C8933", marginTop: 20 }}>
           <div style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 15, fontWeight: 600, marginBottom: 16 }}>
             <span>🤖 AI-Powered Insights</span>
             {loadingInsights && <span style={{ fontSize: 12, color: "#6B7494" }}>(Analysing...)</span>}
-            {aiInsights?.aiGenerated && <span style={{ fontSize: 11, color: "#6C63FF", background: "#6C63FF22", padding: "2px 8px", borderRadius: 4 }}>By Gemini AI</span>}
+            {aiInsights?.aiGenerated && <span style={{ fontSize: 11, color: "#7D6C89", background: "#7D6C8922", padding: "2px 8px", borderRadius: 4 }}>By Gemini AI</span>}
           </div>
 
           {loadingInsights && (
@@ -192,8 +192,8 @@ export default function Reports({ transactions, currentMonthStr, monthlyBudget }
                   <div style={{ fontSize: 13, fontWeight: 600, color: "#D0D6E8", marginBottom: 12 }}>Key Findings:</div>
                   <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))", gap: 12 }}>
                     {aiInsights.insights.map((insight, i) => {
-                      const bgColor     = insight.severity === 'warning' ? '#FF6B6B22' : insight.severity === 'positive' ? '#1DD1A122' : '#54A0FF22';
-                      const borderColor = insight.severity === 'warning' ? '#FF6B6B'   : insight.severity === 'positive' ? '#1DD1A1'   : '#54A0FF';
+                      const bgColor     = insight.severity === 'warning' ? '#C85A5422' : insight.severity === 'positive' ? '#6BA69D22' : '#6B8CAE22';
+                      const borderColor = insight.severity === 'warning' ? '#C85A54'   : insight.severity === 'positive' ? '#6BA69D'   : '#6B8CAE';
                       return (
                         <div key={i} style={{ background: bgColor, border: `1px solid ${borderColor}`, borderRadius: 10, padding: 14 }}>
                           <div style={{ fontSize: 24, marginBottom: 8 }}>{insight.emoji}</div>

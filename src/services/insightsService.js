@@ -23,9 +23,13 @@ export async function generateSpendingInsights(transactions, categoryBreakdown, 
         return `${category?.label || cat}: ₹${amount}`;
       });
 
-    const recentTrend = monthlyTrend.length >= 2 
+    const recentTrend = monthlyTrend && monthlyTrend.length >= 2 
       ? monthlyTrend.slice(-2)
-      : monthlyTrend;
+      : monthlyTrend || [];
+
+    const trendString = recentTrend.length > 0 
+      ? recentTrend.map(m => `${m?.month || 'Unknown'}: ₹${m?.expense || 0} spent`).join('; ')
+      : 'No trend data available';
 
     const prompt = `Analyze this person's spending data and provide 3-4 personalized financial insights and recommendations. Be specific and actionable.
 
@@ -33,7 +37,7 @@ Data:
 - Total Expenses This Month: ₹${totalExpense}
 - Top Spending Categories: ${topCategories.join(', ')}
 - Number of Transactions: ${transactions.length}
-- Monthly Trend: ${recentTrend.map(m => `${m.month}: ₹${m.expense} spent`).join('; ')}
+- Monthly Trend: ${trendString}
 
 Provide insights in JSON format:
 {
@@ -120,18 +124,20 @@ function getBasicInsights(transactions, categoryBreakdown, monthlyTrend, current
   }
 
   // Insight 2: Spending trend
-  if (monthlyTrend.length >= 2) {
+  if (monthlyTrend && monthlyTrend.length >= 2) {
     const recent = monthlyTrend[monthlyTrend.length - 1];
     const previous = monthlyTrend[monthlyTrend.length - 2];
-    const increase = recent.expense > previous.expense;
-    const percent = Math.abs(((recent.expense - previous.expense) / previous.expense) * 100).toFixed(1);
+    if (recent && previous && recent.expense && previous.expense) {
+      const increase = recent.expense > previous.expense;
+      const percent = Math.abs(((recent.expense - previous.expense) / previous.expense) * 100).toFixed(1);
 
-    insights.push({
-      title: increase ? '📈 Spending Increased' : '📉 Spending Decreased',
-      description: `Your expenses ${increase ? 'increased' : 'decreased'} by ${percent}% compared to last month.`,
-      severity: increase ? 'warning' : 'positive',
-      emoji: increase ? '⚠️' : '✅',
-    });
+      insights.push({
+        title: increase ? '📈 Spending Increased' : '📉 Spending Decreased',
+        description: `Your expenses ${increase ? 'increased' : 'decreased'} by ${percent}% compared to last month.`,
+        severity: increase ? 'warning' : 'positive',
+        emoji: increase ? '⚠️' : '✅',
+      });
+    }
   }
 
   // Insight 3: Transaction frequency

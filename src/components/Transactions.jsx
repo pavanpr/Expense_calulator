@@ -1,13 +1,22 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { CATEGORIES, MONTHS } from '../constants.js';
 import { formatINR, formatINRFull } from '../utils.js';
 
-export default function Transactions({ transactions, onDelete, onEdit, editingId, setEditingId }) {
+export default function Transactions({ transactions, onDelete, onEdit, editingId, setEditingId, themeConfig }) {
   const [filterMonth,    setFilterMonth]    = useState("all");
   const [filterCategory, setFilterCategory] = useState("all");
   const [filterType,     setFilterType]     = useState("all");
   const [sortKey,        setSortKey]        = useState("date-desc");
   const [editForm, setEditForm] = useState({});
+
+  // Check if category filter was set from pie chart click
+  useEffect(() => {
+    const categoryFromPie = sessionStorage.getItem('filterCategory');
+    if (categoryFromPie) {
+      setFilterCategory(categoryFromPie);
+      sessionStorage.removeItem('filterCategory');
+    }
+  }, []);
 
   const uniqueMonths = [...new Set(transactions.map(t => t.date.slice(0, 7)))].sort().reverse();
 

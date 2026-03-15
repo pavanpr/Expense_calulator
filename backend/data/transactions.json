@@ -30,10 +30,11 @@
     "id": 1772890846188,
     "description": "Commode Cover Replacement 670",
     "amount": 670,
-    "category": "food",
+    "category": "housing",
     "type": "expense",
     "date": "2026-03-03",
-    "createdAt": "2026-03-07T13:40:46.188Z"
+    "createdAt": "2026-03-07T13:40:46.188Z",
+    "updatedAt": "2026-03-14T08:47:43.764Z"
   },
   {
     "id": 1772891131348,
@@ -49,10 +50,11 @@
     "id": 1772891437222,
     "description": "Bike Wash 200",
     "amount": 200,
-    "category": "food",
+    "category": "transport",
     "type": "expense",
     "date": "2026-03-03",
-    "createdAt": "2026-03-07T13:50:37.222Z"
+    "createdAt": "2026-03-07T13:50:37.222Z",
+    "updatedAt": "2026-03-14T08:47:51.817Z"
   },
   {
     "id": 1772891460269,
@@ -67,10 +69,11 @@
     "id": 1772891485305,
     "description": "Lavith Holi Spray Toy",
     "amount": 650,
-    "category": "food",
+    "category": "entertainment",
     "type": "expense",
     "date": "2026-03-03",
-    "createdAt": "2026-03-07T13:51:25.305Z"
+    "createdAt": "2026-03-07T13:51:25.305Z",
+    "updatedAt": "2026-03-14T08:48:20.946Z"
   },
   {
     "id": 1772891517131,
@@ -134,5 +137,117 @@
     "type": "expense",
     "date": "2026-03-01",
     "createdAt": "2026-03-07T13:54:48.804Z"
+  },
+  {
+    "id": 1773123719251,
+    "description": "Evening Snack at Kadapa Tiffins",
+    "amount": 190,
+    "category": "food",
+    "type": "expense",
+    "date": "2026-03-08",
+    "createdAt": "2026-03-10T06:21:59.251Z"
+  },
+  {
+    "id": 1773123739070,
+    "description": "Lunch at Office",
+    "amount": 110,
+    "category": "food",
+    "type": "expense",
+    "date": "2026-03-09",
+    "createdAt": "2026-03-10T06:22:19.070Z"
+  },
+  {
+    "id": 1773475932773,
+    "description": "Lunch at Office",
+    "amount": 130,
+    "category": "food",
+    "type": "expense",
+    "date": "2026-03-13",
+    "createdAt": "2026-03-14T08:12:12.773Z"
+  },
+  {
+    "id": 1773476093435,
+    "description": "Lunch at Office",
+    "amount": 42,
+    "category": "food",
+    "type": "expense",
+    "date": "2026-03-12",
+    "createdAt": "2026-03-14T08:14:53.435Z",
+    "updatedAt": "2026-03-14T08:17:12.454Z"
+  },
+  {
+    "id": 1773476121704,
+    "description": "Fuel for Ntorq",
+    "amount": 472,
+    "category": "transport",
+    "type": "expense",
+    "date": "2026-03-12",
+    "createdAt": "2026-03-14T08:15:21.704Z"
+  },
+  {
+    "id": 1773476155925,
+    "description": "Lunch at Office",
+    "amount": 85,
+    "category": "food",
+    "type": "expense",
+    "date": "2026-03-11",
+    "createdAt": "2026-03-14T08:15:55.925Z"
+  },
+  {
+    "id": 1773476173168,
+    "description": "Coffee at Office",
+    "amount": 36,
+    "category": "food",
+    "type": "expense",
+    "date": "2026-03-11",
+    "createdAt": "2026-03-14T08:16:13.168Z"
+  },
+  {
+    "id": 1773476192603,
+    "description": "Halli Jonne Biriyani",
+    "amount": 220,
+    "category": "food",
+    "type": "expense",
+    "date": "2026-03-10",
+    "createdAt": "2026-03-14T08:16:32.603Z"
+  },
+  {
+    "id": 1773476210667,
+    "description": "Jayanagar Bakery",
+    "amount": 170,
+    "category": "food",
+    "type": "expense",
+    "date": "2026-03-10",
+    "createdAt": "2026-03-14T08:16:50.667Z"
+  },
+  {
+    "id": 1773548718774,
+    "description": "Icecream at Milano",
+    "amount": 360,
+    "category": "food",
+    "type": "expense",
+    "date": "2026-03-14",
+    "createdAt": "2026-03-15T04:25:18.774Z",
+    "updatedAt": "2026-03-15T04:27:39.653Z"
+  },
+  {
+    "id": 1773548746859,
+    "description": "Mysorepak at Venkateswara Sweets Jayanagar",
+    "amount": 400,
+    "category": "food",
+    "type": "expense",
+    "date": "2026-03-14",
+    "createdAt": "2026-03-15T04:25:46.859Z",
+    "updatedAt": "2026-03-15T04:27:59.600Z"
+  },
+  {
+    "id": 1773548846865,
+    "description": "Snacks at Girmit",
+    "amount": 124,
+    "category": "food",
+    "type": "expense",
+    "date": "2026-03-14",
+    "createdAt": "2026-03-15T04:27:26.865Z",
+    "updatedAt": "2026-03-15T04:27:53.322Z"
   }
 ]

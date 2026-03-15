@@ -86,9 +86,9 @@ export default function AddEntry({ onAdd }) {
         <button 
           onClick={() => setUseAIMode(!useAIMode)}
           style={{
-            background: useAIMode ? "#6C63FF" : "#252A3A",
-            border: "1px solid #6C63FF",
-            color: useAIMode ? "white" : "#6C63FF",
+            background: useAIMode ? "#7D6C89" : "#252A3A",
+            border: "1px solid #7D6C89",
+            color: useAIMode ? "white" : "#7D6C89",
             padding: "8px 14px",
             borderRadius: 8,
             cursor: "pointer",
@@ -105,13 +105,13 @@ export default function AddEntry({ onAdd }) {
       </p>
 
       {success && (
-        <div style={{ background: "#1DD1A122", border: "1px solid #1DD1A1", borderRadius: 10, padding: "12px 16px", marginBottom: 20, color: "#1DD1A1", fontSize: 14, fontWeight: 500 }}>
+        <div style={{ background: "#6BA69D22", border: "1px solid #6BA69D", borderRadius: 10, padding: "12px 16px", marginBottom: 20, color: "#6BA69D", fontSize: 14, fontWeight: 500 }}>
           ✓ Transaction added successfully!
         </div>
       )}
 
       {amountError && (
-        <div style={{ background: "#FF6B6B22", border: "1px solid #FF6B6B", borderRadius: 10, padding: "12px 16px", marginBottom: 20, color: "#FF6B6B", fontSize: 14, fontWeight: 500 }}>
+        <div style={{ background: "#C85A5422", border: "1px solid #C85A54", borderRadius: 10, padding: "12px 16px", marginBottom: 20, color: "#C85A54", fontSize: 14, fontWeight: 500 }}>
           ⚠️ {amountError}
         </div>
       )}
@@ -145,18 +145,18 @@ export default function AddEntry({ onAdd }) {
       )}
 
       {aiAnalysis && (
-        <div style={{ background: "#6C63FF22", border: "1px solid #6C63FF", borderRadius: 10, padding: 16, marginBottom: 20 }}>
-          <div style={{ color: "#6C63FF", fontSize: 13, fontWeight: 600, marginBottom: 12 }}>🤖 AI Analysis Result</div>
+        <div style={{ background: "#7D6C8922", border: "1px solid #7D6C89", borderRadius: 10, padding: 16, marginBottom: 20 }}>
+          <div style={{ color: "#7D6C89", fontSize: 13, fontWeight: 600, marginBottom: 12 }}>🤖 AI Analysis Result</div>
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 14 }}>
             <div>
               <div style={{ fontSize: 11, color: "#6B7494", marginBottom: 4 }}>DETECTED TYPE</div>
-              <div style={{ fontSize: 14, fontWeight: 600, color: aiAnalysis.type === "expense" ? "#FF6B6B" : "#1DD1A1" }}>
+              <div style={{ fontSize: 14, fontWeight: 600, color: aiAnalysis.type === "expense" ? "#C85A54" : "#6BA69D" }}>
                 {aiAnalysis.type === "expense" ? "💸 Expense" : "💰 Income"}
               </div>
             </div>
             <div>
               <div style={{ fontSize: 11, color: "#6B7494", marginBottom: 4 }}>DETECTED CATEGORY</div>
-              <div style={{ fontSize: 14, fontWeight: 600, color: "#6C63FF" }}>
+              <div style={{ fontSize: 14, fontWeight: 600, color: "#7D6C89" }}>
                 {CATEGORIES.find(c => c.id === aiAnalysis.category)?.label}
               </div>
             </div>
@@ -165,7 +165,7 @@ export default function AddEntry({ onAdd }) {
           <div style={{ display: "flex", gap: 10 }}>
             <button 
               onClick={applyAIAnalysis}
-              style={{ flex: 1, background: "#6C63FF", border: "none", color: "white", padding: 10, borderRadius: 8, cursor: "pointer", fontWeight: 600, fontSize: 13 }}
+              style={{ flex: 1, background: "#7D6C89", border: "none", color: "white", padding: 10, borderRadius: 8, cursor: "pointer", fontWeight: 600, fontSize: 13 }}
             >
               ✓ Apply Analysis
             </button>
@@ -214,7 +214,7 @@ export default function AddEntry({ onAdd }) {
                       flex: 1, padding: 8, border: "none", borderRadius: 8, cursor: "pointer",
                       fontFamily: "'DM Sans', sans-serif", fontSize: 13, fontWeight: 500,
                       transition: "all 0.2s",
-                      background: form.type === type ? (type === "expense" ? "#FF6B6B" : "#1DD1A1") : "transparent",
+                      background: form.type === type ? (type === "expense" ? "#C85A54" : "#6BA69D") : "transparent",
                       color: form.type === type ? "white" : "#6B7494",
                     }}>
                     {type === "expense" ? "💸 Expense" : "💰 Income"}
