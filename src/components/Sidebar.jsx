@@ -4,95 +4,62 @@ const NAV_ITEMS = [
   { id: 'dashboard',    icon: '◈', label: 'Dashboard'    },
   { id: 'add',          icon: '＋', label: 'Add Entry'    },
   { id: 'transactions', icon: '≡', label: 'Transactions' },
-  { id: 'reports',      icon: '◎', label: 'Reports'      },
   { id: 'budget',       icon: '◉', label: 'Budget'       },
 ];
 
-export default function Sidebar({ view, setView, budgetUsed, monthlyBudget, formatINR, theme, toggleTheme }) {
-  const barColor =
-    budgetUsed > 90 ? 'var(--rose)' :
-    budgetUsed > 70 ? 'var(--amber)' :
-    'var(--teal)';
-
+export default function Sidebar({ view, setView, budgetUsed, monthlyBudget, formatINR }) {
   return (
     <div style={{
-      width: 220,
-      background: 'var(--bg-surface)',
-      borderRight: '1px solid var(--border)',
-      display: 'flex',
-      flexDirection: 'column',
-      padding: '22px 12px',
-      gap: 2,
-      position: 'sticky',
-      top: 0,
-      height: '100vh',
+      width: 220, background: '#10121A', borderRight: '1px solid #1A1D26',
+      display: 'flex', flexDirection: 'column', padding: '24px 12px', gap: 4,
+      position: 'sticky', top: 0, height: '100vh',
     }}>
-
-      {/* Brand + theme toggle */}
-      <div style={{ padding: '6px 10px 20px', display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
-        <div>
-          <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 19, color: 'var(--text-primary)', fontWeight: 700, lineHeight: 1.2 }}>
-            Expenses
-          </div>
-          <div style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 3 }}>Home Finance</div>
+      <div style={{ padding: '8px 12px 24px' }}>
+        <div style={{ fontFamily: "'Playfair Display', serif", fontSize: 20, color: '#E8EAF0', fontWeight: 700 }}>
+          Expenses
         </div>
-        <button className="theme-toggle" onClick={toggleTheme} title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}>
-          {theme === 'dark' ? '☀' : '☽'}
-        </button>
+        <div style={{ fontSize: 12, color: '#4A5068', marginTop: 2 }}>Home Finance Tracker</div>
       </div>
 
-      {/* Nav items */}
-      {NAV_ITEMS.map(item => {
-        const active = view === item.id;
-        return (
-          <button
-            key={item.id}
-            onClick={() => setView(item.id)}
-            style={{
-              background: active ? 'var(--bg-elevated)' : 'transparent',
-              border: 'none',
-              borderLeft: `3px solid ${active ? 'var(--violet)' : 'transparent'}`,
-              borderRadius: '0 8px 8px 0',
-              cursor: 'pointer',
-              padding: '10px 16px',
-              fontFamily: "'DM Sans', sans-serif",
-              fontSize: 14,
-              fontWeight: active ? 600 : 400,
-              color: active ? 'var(--text-primary)' : 'var(--text-muted)',
-              textAlign: 'left',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 10,
-              width: '100%',
-              transition: 'all 0.15s',
-            }}
-            onMouseEnter={e => { if (!active) e.currentTarget.style.color = 'var(--text-secondary)'; }}
-            onMouseLeave={e => { if (!active) e.currentTarget.style.color = 'var(--text-muted)'; }}
-          >
-            <span style={{ fontSize: 15, opacity: active ? 1 : 0.7 }}>{item.icon}</span>
-            {item.label}
-          </button>
-        );
-      })}
+      {NAV_ITEMS.map(item => (
+        <button
+          key={item.id}
+          onClick={() => setView(item.id)}
+          style={{
+            background: view === item.id ? '#1E2130' : 'transparent',
+            border: 'none', cursor: 'pointer',
+            padding: '10px 20px', borderRadius: 10,
+            fontFamily: "'DM Sans', sans-serif", fontSize: 14, fontWeight: 500,
+            transition: 'all 0.2s',
+            color: view === item.id ? '#E8EAF0' : '#6B7494',
+            borderLeft: `3px solid ${view === item.id ? '#6C63FF' : 'transparent'}`,
+            textAlign: 'left', display: 'flex', alignItems: 'center', gap: 10, width: '100%',
+          }}
+        >
+          <span style={{ fontSize: 16 }}>{item.icon}</span>
+          {item.label}
+        </button>
+      ))}
 
-      {/* Budget mini-widget */}
       <div style={{
-        marginTop: 'auto',
-        padding: 14,
-        background: 'var(--bg-elevated)',
-        borderRadius: 12,
-        border: '1px solid var(--border-subtle)',
+        marginTop: 'auto', padding: 12,
+        background: '#161923', borderRadius: 12, border: '1px solid #1E2436',
       }}>
-        <div style={{ fontSize: 10, color: 'var(--text-muted)', fontWeight: 600, letterSpacing: '0.6px', marginBottom: 8 }}>
-          MONTHLY BUDGET
-        </div>
-        <div style={{ fontSize: 22, fontWeight: 700, color: barColor, lineHeight: 1 }}>
+        <div style={{ fontSize: 11, color: '#4A5068', marginBottom: 6 }}>Monthly Budget</div>
+        <div style={{
+          fontSize: 18, fontWeight: 700,
+          color: budgetUsed > 90 ? '#FF6B6B' : budgetUsed > 70 ? '#FF9F43' : '#1DD1A1',
+        }}>
           {Math.round(budgetUsed)}%
         </div>
-        <div className="progress-track" style={{ marginTop: 10, marginBottom: 8 }}>
-          <div className="progress-fill" style={{ width: `${Math.min(budgetUsed, 100)}%`, background: barColor }} />
+        <div style={{ height: 6, borderRadius: 3, background: '#1E2436', overflow: 'hidden', marginTop: 6 }}>
+          <div style={{
+            height: '100%', borderRadius: 3, transition: 'width 0.6s ease',
+            width: `${Math.min(budgetUsed, 100)}%`,
+            background: budgetUsed > 90 ? '#FF6B6B' : budgetUsed > 70 ? '#FF9F43' : '#1DD1A1',
+          }} />
         </div>
-        <div style={{ fontSize: 11, color: 'var(--text-muted)' }}>of {formatINR(monthlyBudget)}</div>
+        <div style={{ fontSize: 11, color: '#4A5068', marginTop: 6 }}>of {formatINR(monthlyBudget)}</div>
       </div>
     </div>
   );
