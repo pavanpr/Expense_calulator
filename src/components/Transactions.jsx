@@ -39,27 +39,27 @@ export default function Transactions({ transactions, onDelete, onEdit, editingId
 
   return (
     <div className="fade-in">
-      <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 26, marginBottom: 6 }}>All Transactions</h2>
-      <p style={{ color: "#6B7494", fontSize: 14, marginBottom: 20 }}>{filtered.length} entries found</p>
+      <h2 style={{ fontFamily: "'Playfair Display', serif", fontSize: 26, marginBottom: 6, color: themeConfig?.text || "#E8EAF0" }}>All Transactions</h2>
+      <p style={{ color: themeConfig?.muted || "#6B7494", fontSize: 14, marginBottom: 20 }}>{filtered.length} entries found</p>
 
       {/* Filters */}
       <div style={{ display: "flex", gap: 10, marginBottom: 20, flexWrap: "wrap" }}>
-        <select className="input-field" style={{ width: "auto" }} value={filterMonth} onChange={e => setFilterMonth(e.target.value)}>
+        <select className="input-field" style={{ width: "auto", background: themeConfig?.input || "#1A1D28", color: themeConfig?.text || "#E8EAF0", border: `1px solid ${themeConfig?.inputBorder || "#252A3A"}` }} value={filterMonth} onChange={e => setFilterMonth(e.target.value)}>
           <option value="all">All Months</option>
           {uniqueMonths.map(m => (
             <option key={m} value={m}>{MONTHS[parseInt(m.split("-")[1]) - 1]} {m.split("-")[0]}</option>
           ))}
         </select>
-        <select className="input-field" style={{ width: "auto" }} value={filterCategory} onChange={e => setFilterCategory(e.target.value)}>
+        <select className="input-field" style={{ width: "auto", background: themeConfig?.input || "#1A1D28", color: themeConfig?.text || "#E8EAF0", border: `1px solid ${themeConfig?.inputBorder || "#252A3A"}` }} value={filterCategory} onChange={e => setFilterCategory(e.target.value)}>
           <option value="all">All Categories</option>
           {CATEGORIES.map(c => <option key={c.id} value={c.id}>{c.icon} {c.label}</option>)}
         </select>
-        <select className="input-field" style={{ width: "auto" }} value={filterType} onChange={e => setFilterType(e.target.value)}>
+        <select className="input-field" style={{ width: "auto", background: themeConfig?.input || "#1A1D28", color: themeConfig?.text || "#E8EAF0", border: `1px solid ${themeConfig?.inputBorder || "#252A3A"}` }} value={filterType} onChange={e => setFilterType(e.target.value)}>
           <option value="all">All Types</option>
           <option value="expense">Expenses</option>
           <option value="income">Income</option>
         </select>
-        <select className="input-field" style={{ width: "auto" }} value={sortKey} onChange={e => setSortKey(e.target.value)}>
+        <select className="input-field" style={{ width: "auto", background: themeConfig?.input || "#1A1D28", color: themeConfig?.text || "#E8EAF0", border: `1px solid ${themeConfig?.inputBorder || "#252A3A"}` }} value={sortKey} onChange={e => setSortKey(e.target.value)}>
           <option value="date-desc">Newest First</option>
           <option value="date-asc">Oldest First</option>
           <option value="amount-desc">Highest Amount</option>
@@ -70,23 +70,23 @@ export default function Transactions({ transactions, onDelete, onEdit, editingId
       {/* Summary */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, marginBottom: 20 }}>
         {[
-          { label: "Total Expenses", value: totalExp,            color: "#C85A54" },
-          { label: "Total Income",   value: totalInc,            color: "#6BA69D" },
-          { label: "Net",            value: totalInc - totalExp, color: totalInc - totalExp >= 0 ? "#6B8CAE" : "#C85A54" },
+          { label: "Total Expenses", value: totalExp,            color: themeConfig?.expense || "#C85A54" },
+          { label: "Total Income",   value: totalInc,            color: themeConfig?.income || "#6BA69D" },
+          { label: "Net",            value: totalInc - totalExp, color: (totalInc - totalExp >= 0) ? (themeConfig?.neutral || "#6B8CAE") : (themeConfig?.expense || "#C85A54") },
         ].map((s, i) => (
-          <div key={i} style={{ background: "#1A1D28", border: "1px solid #252A3A", borderRadius: 12, padding: "14px 18px" }}>
-            <div style={{ fontSize: 11, color: "#4A5068", marginBottom: 4 }}>{s.label}</div>
+          <div key={i} style={{ background: themeConfig?.card || "#1A1D28", border: `1px solid ${themeConfig?.border || "#252A3A"}`, borderRadius: 12, padding: "14px 18px" }}>
+            <div style={{ fontSize: 11, color: themeConfig?.muted || "#4A5068", marginBottom: 4 }}>{s.label}</div>
             <div style={{ fontSize: 20, fontWeight: 700, color: s.color }}>{formatINR(Math.abs(s.value))}</div>
           </div>
         ))}
       </div>
 
       {/* Table */}
-      <div className="card" style={{ padding: 0, overflow: "hidden" }}>
+      <div className="card" style={{ padding: 0, overflow: "hidden", background: themeConfig?.card || "#161923", border: `1px solid ${themeConfig?.border || "#1E2436"}` }}>
         <div style={{
           display: "grid", gridTemplateColumns: "100px 1fr 140px 130px 80px 80px",
-          padding: "12px 20px", borderBottom: "1px solid #1E2436",
-          fontSize: 11, color: "#4A5068", fontWeight: 600, letterSpacing: "0.5px",
+          padding: "12px 20px", borderBottom: `1px solid ${themeConfig?.border || "#1E2436"}`,
+          fontSize: 11, color: themeConfig?.muted || "#4A5068", fontWeight: 600, letterSpacing: "0.5px",
         }}>
           <span>DATE</span><span>DESCRIPTION</span><span>CATEGORY</span>
           <span style={{ textAlign: "right" }}>AMOUNT</span>
