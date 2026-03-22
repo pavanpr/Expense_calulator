@@ -249,5 +249,197 @@
     "date": "2026-03-14",
     "createdAt": "2026-03-15T04:27:26.865Z",
     "updatedAt": "2026-03-15T04:27:53.322Z"
+  },
+  {
+    "id": 1773631045695,
+    "description": "Fuel for Car",
+    "amount": 4000,
+    "category": "transport",
+    "type": "expense",
+    "date": "2026-03-15",
+    "createdAt": "2026-03-16T03:17:25.695Z"
+  },
+  {
+    "id": 1773631068210,
+    "description": "Makana for Lavith",
+    "amount": 580,
+    "category": "food",
+    "type": "expense",
+    "date": "2026-03-15",
+    "createdAt": "2026-03-16T03:17:48.210Z",
+    "updatedAt": "2026-03-16T04:07:02.395Z"
+  },
+  {
+    "id": 1773631085660,
+    "description": "Curry for Sunday Afternoon",
+    "amount": 180,
+    "category": "food",
+    "type": "expense",
+    "date": "2026-03-15",
+    "createdAt": "2026-03-16T03:18:05.660Z"
+  },
+  {
+    "id": 1773631135184,
+    "description": "Curd",
+    "amount": 74,
+    "category": "food",
+    "type": "expense",
+    "date": "2026-03-15",
+    "createdAt": "2026-03-16T03:18:55.184Z"
+  },
+  {
+    "id": 1773631222054,
+    "description": "Term Insurance HDFC",
+    "amount": 17184,
+    "category": "other",
+    "type": "expense",
+    "date": "2026-03-15",
+    "createdAt": "2026-03-16T03:20:22.054Z"
+  },
+  {
+    "id": 1774153289946,
+    "description": "Coffee at A2B",
+    "amount": 40,
+    "category": "food",
+    "type": "expense",
+    "date": "2026-03-19",
+    "createdAt": "2026-03-22T04:21:29.946Z"
+  },
+  {
+    "id": 1774153305680,
+    "description": "Parking at A2B",
+    "amount": 20,
+    "category": "transport",
+    "type": "expense",
+    "date": "2026-03-19",
+    "createdAt": "2026-03-22T04:21:45.680Z"
+  },
+  {
+    "id": 1774153341079,
+    "description": "Lunch at Office",
+    "amount": 80,
+    "category": "food",
+    "type": "expense",
+    "date": "2026-03-20",
+    "createdAt": "2026-03-22T04:22:21.079Z"
+  },
+  {
+    "id": 1774153371442,
+    "description": "Coffee at A2B",
+    "amount": 40,
+    "category": "food",
+    "type": "expense",
+    "date": "2026-03-21",
+    "createdAt": "2026-03-22T04:22:51.442Z"
+  },
+  {
+    "id": 1774153385156,
+    "description": "Parking at A2B",
+    "amount": 30,
+    "category": "transport",
+    "type": "expense",
+    "date": "2026-03-21",
+    "createdAt": "2026-03-22T04:23:05.156Z"
+  },
+  {
+    "id": 1774153406181,
+    "description": "Coffee at Jayanagar",
+    "amount": 120,
+    "category": "food",
+    "type": "expense",
+    "date": "2026-03-21",
+    "createdAt": "2026-03-22T04:23:26.181Z"
+  },
+  {
+    "id": 1774153428998,
+    "description": "Milano IceCream at Jayanagar",
+    "amount": 260,
+    "category": "food",
+    "type": "expense",
+    "date": "2026-03-21",
+    "createdAt": "2026-03-22T04:23:48.998Z",
+    "updatedAt": "2026-03-22T04:34:04.713Z"
+  },
+  {
+    "id": 1774153486689,
+    "description": "Coffee at Office",
+    "amount": 38,
+    "category": "food",
+    "type": "expense",
+    "date": "2026-03-18",
+    "createdAt": "2026-03-22T04:24:46.689Z"
+  },
+  {
+    "id": 1774153508826,
+    "description": "Lunch at Office",
+    "amount": 75,
+    "category": "food",
+    "type": "expense",
+    "date": "2026-03-18",
+    "createdAt": "2026-03-22T04:25:08.826Z"
+  },
+  {
+    "id": 1774153547098,
+    "description": "Dosa Batter",
+    "amount": 60,
+    "category": "food",
+    "type": "expense",
+    "date": "2026-03-16",
+    "createdAt": "2026-03-22T04:25:47.098Z"
+  },
+  {
+    "id": 1774153564693,
+    "description": "Tea at Office",
+    "amount": 36,
+    "category": "food",
+    "type": "expense",
+    "date": "2026-03-16",
+    "createdAt": "2026-03-22T04:26:04.693Z"
+  },
+  {
+    "id": 1774153584484,
+    "description": "Lunch at Office",
+    "amount": 80,
+    "category": "food",
+    "type": "expense",
+    "date": "2026-03-16",
+    "createdAt": "2026-03-22T04:26:24.484Z"
+  },
+  {
+    "id": 1774154236905,
+    "description": "Pizzaman at Jayanaga",
+    "amount": 440,
+    "category": "food",
+    "type": "expense",
+    "date": "2026-03-21",
+    "createdAt": "2026-03-22T04:37:16.905Z"
+  },
+  {
+    "id": 1774154264638,
+    "description": "Fuel for Ntorq",
+    "amount": 430,
+    "category": "transport",
+    "type": "expense",
+    "date": "2026-03-19",
+    "createdAt": "2026-03-22T04:37:44.638Z"
+  },
+  {
+    "id": 1774154298997,
+    "description": "MotherHood Hospital for Lavith",
+    "amount": 1127,
+    "category": "health",
+    "type": "expense",
+    "date": "2026-03-19",
+    "createdAt": "2026-03-22T04:38:18.997Z",
+    "updatedAt": "2026-03-22T04:38:30.143Z"
+  },
+  {
+    "id": 1774154456755,
+    "description": "Motor Bill in March",
+    "amount": 488,
+    "category": "housing",
+    "type": "expense",
+    "date": "2026-03-20",
+    "createdAt": "2026-03-22T04:40:56.755Z"
   }
 ]
