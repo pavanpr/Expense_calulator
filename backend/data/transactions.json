@@ -441,5 +441,341 @@
     "type": "expense",
     "date": "2026-03-20",
     "createdAt": "2026-03-22T04:40:56.755Z"
+  },
+  {
+    "id": 1775039896884,
+    "description": "Lunch at Office",
+    "amount": 110,
+    "category": "food",
+    "type": "expense",
+    "date": "2026-03-23",
+    "createdAt": "2026-04-01T10:38:16.884Z"
+  },
+  {
+    "id": 1775039927868,
+    "description": "Coffee at Office",
+    "amount": 20,
+    "category": "food",
+    "type": "expense",
+    "date": "2026-03-23",
+    "createdAt": "2026-04-01T10:38:47.869Z"
+  },
+  {
+    "id": 1775039987999,
+    "description": "Auto to Office from Nakkshatra Restaurent",
+    "amount": 100,
+    "category": "transport",
+    "type": "expense",
+    "date": "2026-03-24",
+    "createdAt": "2026-04-01T10:39:47.999Z"
+  },
+  {
+    "id": 1775040032457,
+    "description": "Lunch at Office",
+    "amount": 85,
+    "category": "food",
+    "type": "expense",
+    "date": "2026-03-25",
+    "createdAt": "2026-04-01T10:40:32.457Z"
+  },
+  {
+    "id": 1775040047137,
+    "description": "Tea at Office",
+    "amount": 12,
+    "category": "food",
+    "type": "expense",
+    "date": "2026-03-25",
+    "createdAt": "2026-04-01T10:40:47.137Z"
+  },
+  {
+    "id": 1775040079000,
+    "description": "Rapido bike from office to home",
+    "amount": 125,
+    "category": "transport",
+    "type": "expense",
+    "date": "2026-03-25",
+    "createdAt": "2026-04-01T10:41:19.000Z"
+  },
+  {
+    "id": 1775040116762,
+    "description": "Lunch at Office",
+    "amount": 100,
+    "category": "food",
+    "type": "expense",
+    "date": "2026-03-26",
+    "createdAt": "2026-04-01T10:41:56.762Z"
+  },
+  {
+    "id": 1775040213553,
+    "description": "Petrol to Ntorq",
+    "amount": 343,
+    "category": "transport",
+    "type": "expense",
+    "date": "2026-03-26",
+    "createdAt": "2026-04-01T10:43:33.553Z"
+  },
+  {
+    "id": 1775040258434,
+    "description": "Lunch at Office",
+    "amount": 100,
+    "category": "food",
+    "type": "expense",
+    "date": "2026-03-27",
+    "createdAt": "2026-04-01T10:44:18.434Z"
+  },
+  {
+    "id": 1775040270313,
+    "description": "Tea at Office",
+    "amount": 12,
+    "category": "food",
+    "type": "expense",
+    "date": "2026-03-27",
+    "createdAt": "2026-04-01T10:44:30.313Z"
+  },
+  {
+    "id": 1775040326341,
+    "description": "Gum Nails in blinkit",
+    "amount": 154,
+    "category": "utilities",
+    "type": "expense",
+    "date": "2026-03-28",
+    "createdAt": "2026-04-01T10:45:26.341Z"
+  },
+  {
+    "id": 1775040374229,
+    "description": "Breakfast at Babai Hotel",
+    "amount": 425,
+    "category": "food",
+    "type": "expense",
+    "date": "2026-03-29",
+    "createdAt": "2026-04-01T10:46:14.229Z"
+  },
+  {
+    "id": 1775040407428,
+    "description": "Rapido to Pasta Street",
+    "amount": 200,
+    "category": "transport",
+    "type": "expense",
+    "date": "2026-03-29",
+    "createdAt": "2026-04-01T10:46:47.428Z",
+    "updatedAt": "2026-04-01T10:48:36.671Z"
+  },
+  {
+    "id": 1775040461362,
+    "description": "Tablets in Apolo",
+    "amount": 147,
+    "category": "health",
+    "type": "expense",
+    "date": "2026-03-29",
+    "createdAt": "2026-04-01T10:47:41.362Z"
+  },
+  {
+    "id": 1775040509143,
+    "description": "Auto to Hare's House",
+    "amount": 200,
+    "category": "transport",
+    "type": "expense",
+    "date": "2026-03-30",
+    "createdAt": "2026-04-01T10:48:29.143Z"
+  },
+  {
+    "id": 1775040562271,
+    "description": "Lunch at Office",
+    "amount": 100,
+    "category": "food",
+    "type": "expense",
+    "date": "2026-03-30",
+    "createdAt": "2026-04-01T10:49:22.271Z"
+  },
+  {
+    "id": 1775040601219,
+    "description": "Tea at office",
+    "amount": 20,
+    "category": "food",
+    "type": "expense",
+    "date": "2026-03-30",
+    "createdAt": "2026-04-01T10:50:01.219Z"
+  },
+  {
+    "id": 1775040680530,
+    "description": "Snack at Nandi Upachar",
+    "amount": 500,
+    "category": "food",
+    "type": "expense",
+    "date": "2026-03-31",
+    "createdAt": "2026-04-01T10:51:20.530Z",
+    "updatedAt": "2026-04-01T10:52:12.330Z"
+  },
+  {
+    "id": 1775040697422,
+    "description": "Apple Wallet load",
+    "amount": 844,
+    "category": "utilities",
+    "type": "expense",
+    "date": "2026-03-31",
+    "createdAt": "2026-04-01T10:51:37.422Z"
+  },
+  {
+    "id": 1775040783155,
+    "description": "Breakfast in Hindupur",
+    "amount": 105,
+    "category": "food",
+    "type": "expense",
+    "date": "2026-04-01",
+    "createdAt": "2026-04-01T10:53:03.155Z"
+  },
+  {
+    "id": 1775040800754,
+    "description": "Leaves for Home",
+    "amount": 40,
+    "category": "housing",
+    "type": "expense",
+    "date": "2026-04-01",
+    "createdAt": "2026-04-01T10:53:20.754Z"
+  },
+  {
+    "id": 1775040815658,
+    "description": "March Rent",
+    "amount": 13100,
+    "category": "housing",
+    "type": "expense",
+    "date": "2026-04-01",
+    "createdAt": "2026-04-01T10:53:35.658Z"
+  },
+  {
+    "id": 1775040974584,
+    "description": "Coffee at Babai Tiffins",
+    "amount": 60,
+    "category": "food",
+    "type": "expense",
+    "date": "2026-03-27",
+    "createdAt": "2026-04-01T10:56:14.584Z",
+    "updatedAt": "2026-04-01T10:56:46.761Z"
+  },
+  {
+    "id": 1775041033061,
+    "description": "Coffee and Juice at Babai Tiffins",
+    "amount": 162,
+    "category": "food",
+    "type": "expense",
+    "date": "2026-03-28",
+    "createdAt": "2026-04-01T10:57:13.061Z"
+  },
+  {
+    "id": 1775041069502,
+    "description": "Coconut Water at HSR",
+    "amount": 120,
+    "category": "food",
+    "type": "expense",
+    "date": "2026-03-28",
+    "createdAt": "2026-04-01T10:57:49.502Z"
+  },
+  {
+    "id": 1775041084645,
+    "description": "Rapido to home from pasta Street",
+    "amount": 300,
+    "category": "transport",
+    "type": "expense",
+    "date": "2026-03-29",
+    "createdAt": "2026-04-01T10:58:04.645Z"
+  },
+  {
+    "id": 1775041228658,
+    "description": "Internet Bill for 6 months",
+    "amount": 5237,
+    "category": "utilities",
+    "type": "expense",
+    "date": "2026-03-30",
+    "createdAt": "2026-04-01T11:00:28.658Z"
+  },
+  {
+    "id": 1775041251334,
+    "description": "Pasta Street",
+    "amount": 1700,
+    "category": "food",
+    "type": "expense",
+    "date": "2026-03-29",
+    "createdAt": "2026-04-01T11:00:51.334Z"
+  },
+  {
+    "id": 1775041355164,
+    "description": "Netflix",
+    "amount": 199,
+    "category": "utilities",
+    "type": "expense",
+    "date": "2026-03-25",
+    "createdAt": "2026-04-01T11:02:35.164Z"
+  },
+  {
+    "id": 1775041380710,
+    "description": "Youtube Premium",
+    "amount": 299,
+    "category": "utilities",
+    "type": "expense",
+    "date": "2026-04-01",
+    "createdAt": "2026-04-01T11:03:00.710Z"
+  },
+  {
+    "id": 1775041436055,
+    "description": "Studs from Studex",
+    "amount": 880,
+    "category": "shopping",
+    "type": "expense",
+    "date": "2026-03-22",
+    "createdAt": "2026-04-01T11:03:56.055Z"
+  },
+  {
+    "id": 1775041522980,
+    "description": "Lenskart for Lavith",
+    "amount": 2539,
+    "category": "shopping",
+    "type": "expense",
+    "date": "2026-03-22",
+    "createdAt": "2026-04-01T11:05:22.980Z"
+  },
+  {
+    "id": 1775041560168,
+    "description": "Hospital for Lavith",
+    "amount": 750,
+    "category": "health",
+    "type": "expense",
+    "date": "2026-03-24",
+    "createdAt": "2026-04-01T11:06:00.168Z"
+  },
+  {
+    "id": 1775041589613,
+    "description": "IRCTC Train for Vaishnavi",
+    "amount": 830,
+    "category": "transport",
+    "type": "expense",
+    "date": "2026-04-29",
+    "createdAt": "2026-04-01T11:06:29.613Z"
+  },
+  {
+    "id": 1775041611738,
+    "description": "MR DIY Toys",
+    "amount": 1150,
+    "category": "shopping",
+    "type": "expense",
+    "date": "2026-03-28",
+    "createdAt": "2026-04-01T11:06:51.738Z"
+  },
+  {
+    "id": 1775041736130,
+    "description": "Food in Forum Mall",
+    "amount": 728,
+    "category": "food",
+    "type": "expense",
+    "date": "2026-03-28",
+    "createdAt": "2026-04-01T11:08:56.130Z"
+  },
+  {
+    "id": 1775041768123,
+    "description": "Rapido from Hare's House to Office",
+    "amount": 250,
+    "category": "transport",
+    "type": "expense",
+    "date": "2026-03-28",
+    "createdAt": "2026-04-01T11:09:28.123Z"
   }
 ]
