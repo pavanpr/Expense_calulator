@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { formatINR } from './utils.js';
 import * as apiService from './services/apiService.js';
 import Sidebar from './components/Sidebar.jsx';
@@ -18,6 +18,20 @@ function getCurrentMonth() {
 const CURRENT_MONTH = getCurrentMonth();
 
 export default function App() {
+  // Theme state: 'dark' (default) or 'light'
+  const [theme, setTheme] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem('theme') || 'dark';
+    }
+    return 'dark';
+  });
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => setTheme(t => (t === 'dark' ? 'light' : 'dark'));
   const [transactions, setTransactions]     = useState([]);
   const [view, setView]                     = useState('dashboard');
   const [monthlyBudget, setMonthlyBudget]   = useState(60000);
@@ -127,7 +141,33 @@ export default function App() {
         .fade-in { animation: fadeIn 0.3s ease; }
       `}</style>
 
-      <div style={{ display: 'flex', minHeight: '100vh', fontFamily: "'DM Sans', sans-serif", background: '#0D0F14', color: '#E8EAF0' }}>
+  <div style={{ display: 'flex', minHeight: '100vh', fontFamily: "'DM Sans', sans-serif", background: 'var(--bg-base)', color: 'var(--text-primary)', position: 'relative' }}>
+        {/* Theme toggle button */}
+        <button
+          onClick={toggleTheme}
+          aria-label={theme === 'dark' ? 'Switch to light theme' : 'Switch to dark theme'}
+          style={{
+            position: 'fixed',
+            top: 18,
+            right: 28,
+            zIndex: 2000,
+            background: 'var(--bg-elevated)',
+            color: 'var(--text-primary)',
+            border: '1px solid var(--border)',
+            borderRadius: 24,
+            width: 44,
+            height: 44,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: 22,
+            boxShadow: theme === 'light' ? '0 2px 12px #C8BFB044' : '0 2px 12px #15182044',
+            cursor: 'pointer',
+            transition: 'background 0.2s, color 0.2s, box-shadow 0.2s',
+          }}
+        >
+          {theme === 'dark' ? '🌞' : '🌙'}
+        </button>
 
         {(loading || error || !isOnline) && (
           <div style={{

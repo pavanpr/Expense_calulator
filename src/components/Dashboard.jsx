@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
 import { CATEGORIES, MONTHS } from '../constants.js';
 import { formatINR, formatINRFull } from '../utils.js';
-import { generateSpendingInsights } from '../services/insightsService.js';
+// AI insights removed — no external AI service used anymore
 
 // ─── helpers ────────────────────────────────────────────────────────────────
 function getGreeting() {
@@ -184,55 +184,93 @@ function Sparkline({ data, color, width = 80, height = 32 }) {
 
 // ─── Main Component ──────────────────────────────────────────────────────────
 export default function Dashboard({ transactions, currentMonthStr, monthlyBudget, setView, onCategoryFilter }) {
-  const [trendFilter, setTrendFilter] = useState('all');
+  const [filterPeriod, setFilterPeriod] = useState(currentMonthStr);
   const [activePieCategory, setActivePieCategory] = useState(null);
-  const [aiInsights, setAiInsights] = useState(null);
-  const [loadingInsights, setLoadingInsights] = useState(false);
 
-  // ── current month base stats ────────────────────────────────────────────
-  const currentMonthTx  = useMemo(() =>
-    transactions.filter(t => t.date.startsWith(currentMonthStr)), [transactions, currentMonthStr]);
+  // Update filterPeriod when currentMonthStr changes
+  React.useEffect(() => {
+    setFilterPeriod(currentMonthStr);
+  }, [currentMonthStr]);
+
+  // ── Determine if filter is a month, quarter, or ytd ─────────────────────
+  const isQuarter = filterPeriod && filterPeriod.startsWith('Q');
+  const isYTD = filterPeriod === 'YTD';
+  const isMonth = !isQuarter && !isYTD;
+
+  // ── Get display label for current filter ──────────────────────────────────
+  const getFilterLabel = (period) => {
+    if (period === 'YTD') return 'Year to Date';
+    if (period.startsWith('Q')) {
+      const [q, year] = period.split('-');
+      return `${q} ${year}`;
+    }
+    return formatMonthLabel(period);
+  };
+
+  // ── current period base stats ────────────────────────────────────────────
+  const currentPeriodTx = useMemo(() => {
+    if (!filterPeriod) return [];
+    
+    if (isMonth) {
+      return transactions.filter(t => t.date.startsWith(filterPeriod));
+    }
+    if (isYTD) {
+      const now = new Date();
+      const year = now.getFullYear();
+      return transactions.filter(t => t.date.startsWith(year.toString()));
+    }
+    if (isQuarter && filterPeriod.includes('-')) {
+      const [q, year] = filterPeriod.split('-');
+      const quarterNum = parseInt(q.substring(1));
+      const startMonth = (quarterNum - 1) * 3 + 1;
+      const endMonth = quarterNum * 3;
+      return transactions.filter(t => {
+        const txYear = parseInt(t.date.split('-')[0]);
+        const txMonth = parseInt(t.date.split('-')[1]);
+        return txYear === parseInt(year) && txMonth >= startMonth && txMonth <= endMonth;
+      });
+    }
+    return [];
+  }, [transactions, filterPeriod, isMonth, isYTD, isQuarter]);
+
   const currentExpenses = useMemo(() =>
-    currentMonthTx.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0), [currentMonthTx]);
-  const currentIncome   = useMemo(() =>
-    currentMonthTx.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0), [currentMonthTx]);
-  const savings    = currentIncome - currentExpenses;
+    currentPeriodTx.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0), [currentPeriodTx]);
   const budgetUsed = (currentExpenses / monthlyBudget) * 100;
 
-  // ── category breakdown (current month) ─────────────────────────────────
+  // ── category breakdown (current period) ─────────────────────────────────
   const categoryBreakdown = useMemo(() => {
     const map = {};
-    currentMonthTx.filter(t => t.type === 'expense').forEach(t => {
+    currentPeriodTx.filter(t => t.type === 'expense').forEach(t => {
       map[t.category] = (map[t.category] || 0) + t.amount;
     });
     return Object.entries(map).map(([id, amount]) => {
       const cat = CATEGORIES.find(c => c.id === id) || {};
       return { ...cat, id, amount, pct: currentExpenses > 0 ? (amount / currentExpenses) * 100 : 0 };
     }).sort((a, b) => b.amount - a.amount);
-  }, [currentMonthTx, currentExpenses]);
-
-  // ── trend filter window ──────────────────────────────────────────────────
-  const filteredTx = useMemo(() => {
-    if (trendFilter === 'all') return transactions;
-    return transactions.filter(t => t.date.startsWith(trendFilter));
-  }, [transactions, trendFilter]);
+  }, [currentPeriodTx, currentExpenses]);
 
   const filteredExpenses = useMemo(() =>
-    filteredTx.filter(t => t.type === 'expense'), [filteredTx]);
+    currentPeriodTx.filter(t => t.type === 'expense'), [currentPeriodTx]);
 
   // ── monthly trend ───────────────────────────────────────────────────────
   const monthlyTrend = useMemo(() => {
     const map = {};
     transactions.forEach(t => {
       const m = t.date.slice(0, 7);
-      if (!map[m]) map[m] = { income: 0, expense: 0 };
-      map[m][t.type] += t.amount;
+      if (!map[m]) map[m] = { expense: 0 };
+      if (t.type === 'expense') map[m].expense += t.amount;
     });
     return Object.entries(map).sort().map(([month, data]) => ({ month, ...data }));
   }, [transactions]);
 
-  const uniqueMonths = useMemo(() =>
-    [...new Set(transactions.map(t => t.date.slice(0, 7)))].sort().reverse(), [transactions]);
+  const uniqueMonths = useMemo(() => {
+    const months = [...new Set(transactions.map(t => t.date.slice(0, 7)))].sort().reverse();
+    // Always include current month even if no transactions
+    if (!months.includes(currentMonthStr)) {
+      months.unshift(currentMonthStr);
+    }
+    return months;
+  }, [transactions, currentMonthStr]);
 
   // ── detailed analysis stats (respect trendFilter) ───────────────────────
   const totalSpent  = filteredExpenses.reduce((s, t) => s + t.amount, 0);
@@ -247,12 +285,11 @@ export default function Dashboard({ transactions, currentMonthStr, monthlyBudget
     return { ...(CATEGORIES.find(c => c.id === top[0]) || {}), id: top[0], amount: top[1] };
   }, [filteredExpenses]);
 
-  // ── key metrics (always current month) ─────────────────────────────────
+  // ── key metrics (for current period) ─────────────────────────────────
   const daysInMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate();
   const dailyAvg    = currentExpenses / daysInMonth;
-  const savingsRate = currentIncome > 0 ? Math.round((savings / currentIncome) * 100) : 0;
-  const fixedCosts  = currentMonthTx
-    .filter(t => t.type === 'expense' && ['housing', 'utilities', 'savings'].includes(t.category))
+  const fixedCosts  = currentPeriodTx
+    .filter(t => t.type === 'expense' && ['housing', 'utilities', 'fuel'].includes(t.category))
     .reduce((s, t) => s + t.amount, 0);
 
   // sparkline data per category (last 30 days grouped by category)
@@ -269,20 +306,7 @@ export default function Dashboard({ transactions, currentMonthStr, monthlyBudget
     return result;
   }, [transactions, categoryBreakdown]);
 
-  // ── AI insights (filtered transactions) ────────────────────────────────
-  const catMapForAI = useMemo(() => {
-    const map = {};
-    filteredExpenses.forEach(t => { map[t.category] = (map[t.category] || 0) + t.amount; });
-    return map;
-  }, [filteredExpenses]);
-
-  useEffect(() => {
-    if (filteredExpenses.length === 0) { setAiInsights(null); return; }
-    setLoadingInsights(true);
-    generateSpendingInsights(filteredTx, catMapForAI, monthlyTrend, currentMonthStr)
-      .then(ins => { setAiInsights(ins); setLoadingInsights(false); })
-      .catch(() => setLoadingInsights(false));
-  }, [filteredTx, catMapForAI, monthlyTrend, currentMonthStr]);
+  // AI insights removed — no runtime AI calls performed
 
   // ── pie click → jump to filtered transactions ──────────────────────────
   const handlePieClick = (categoryId) => {
@@ -292,7 +316,7 @@ export default function Dashboard({ transactions, currentMonthStr, monthlyBudget
     }
   };
 
-  const maxTrendVal = Math.max(...monthlyTrend.map(m => Math.max(m.income, m.expense)), 1);
+  const maxTrendVal = Math.max(...(monthlyTrend && monthlyTrend.length ? monthlyTrend.map(m => m.expense || 0) : [1]), 1);
 
   return (
     <div className="fade-in" style={{ maxWidth: 1100 }}>
@@ -304,28 +328,55 @@ export default function Dashboard({ transactions, currentMonthStr, monthlyBudget
             Dashboard &amp; Reports
           </h1>
           <p style={{ color: '#6B7494', fontSize: 14, marginTop: 4 }}>
-            {getGreeting()} — {formatMonthLabel(currentMonthStr)}
+            {getGreeting()} — {getFilterLabel(filterPeriod)}
           </p>
         </div>
-        <select
-          className="input-field"
-          style={{ width: 'auto', fontSize: 13 }}
-          value={trendFilter}
-          onChange={e => setTrendFilter(e.target.value)}
-        >
-          <option value="all">All Time</option>
-          {uniqueMonths.map(m => (
-            <option key={m} value={m}>{MONTHS[parseInt(m.split('-')[1]) - 1]} {m.split('-')[0]}</option>
-          ))}
-        </select>
+        <div>
+          <select
+            className="input-field"
+            style={{ width: 'auto', fontSize: 13 }}
+            value={filterPeriod}
+            onChange={e => setFilterPeriod(e.target.value)}
+          >
+            {/* Months */}
+            {uniqueMonths.map(m => (
+              <option key={m} value={m}>{MONTHS[parseInt(m.split('-')[1]) - 1]} {m.split('-')[0]}</option>
+            ))}
+            {/* Separator */}
+            <optgroup label="Reports">
+              <option value="YTD">Year to Date</option>
+              {/* Last 4 quarters */}
+              {(() => {
+                const now = new Date();
+                const currentYear = now.getFullYear();
+                const currentQuarter = Math.ceil((now.getMonth() + 1) / 3);
+                const quarters = [];
+                
+                // Add current and last 3 quarters
+                for (let i = 0; i < 4; i++) {
+                  let q = currentQuarter - i;
+                  let y = currentYear;
+                  
+                  if (q < 1) {
+                    q += 4;
+                    y -= 1;
+                  }
+                  quarters.push({ q: `Q${q}`, year: y });
+                }
+                
+                return quarters.map(({q, year}) => (
+                  <option key={`${q}-${year}`} value={`${q}-${year}`}>{q} {year}</option>
+                ));
+              })()}
+            </optgroup>
+          </select>
+        </div>
       </div>
 
       {/* ── Hero KPI strip ──────────────────────────────────────────── */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 24 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 14, marginBottom: 24 }}>
         {[
-          { label: 'Total Income',   value: currentIncome,   color: '#1DD1A1', icon: '↑', sub: 'This month', spark: monthlyTrend.map(m => m.income) },
-          { label: 'Total Expenses', value: currentExpenses, color: '#FF6B6B', icon: '↓', sub: 'This month', spark: monthlyTrend.map(m => m.expense) },
-          { label: 'Net Savings',    value: Math.abs(savings), color: savings >= 0 ? '#54A0FF' : '#FF6B6B', icon: '◎', sub: savings >= 0 ? 'Surplus' : 'Deficit', spark: monthlyTrend.map(m => m.income - m.expense) },
+          { label: 'Total Expenses', value: currentExpenses, color: '#FF6B6B', icon: '↓', sub: 'This month', spark: monthlyTrend ? monthlyTrend.map(m => m.expense || 0) : [] },
           { label: 'Budget Used',    value: null, color: budgetUsed > 90 ? '#FF6B6B' : budgetUsed > 70 ? '#FF9F43' : '#1DD1A1', icon: '◉', sub: `of ${formatINR(monthlyBudget)}`, pct: budgetUsed },
         ].map((kpi, i) => (
           <div key={i} className="card" style={{
@@ -435,7 +486,7 @@ export default function Dashboard({ transactions, currentMonthStr, monthlyBudget
       {/* ── Detailed Analysis (4 stat cards) ───────────────────────── */}
       <div style={{ marginBottom: 8 }}>
         <div style={{ fontSize: 13, fontWeight: 600, color: '#6B7494', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: 14 }}>
-          Detailed Analysis {trendFilter !== 'all' && `· ${MONTHS[parseInt(trendFilter.split('-')[1]) - 1]} ${trendFilter.split('-')[0]}`}
+          Detailed Analysis {filterPeriod !== 'all' && filterPeriod !== 'YTD' && !filterPeriod.startsWith('Q') && `· ${MONTHS[parseInt(filterPeriod.split('-')[1]) - 1]} ${filterPeriod.split('-')[0]}`}
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 14, marginBottom: 20 }}>
           {[
@@ -456,61 +507,48 @@ export default function Dashboard({ transactions, currentMonthStr, monthlyBudget
       {/* ── Month-over-Month Trend chart ────────────────────────────── */}
       <div className="card" style={{ marginBottom: 20 }}>
         <div style={{ fontSize: 15, fontWeight: 600, marginBottom: 20 }}>Month-over-Month Trends</div>
-        <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8, height: 140, paddingBottom: 4, overflowX: 'auto' }}>
-          {monthlyTrend.map((m, i) => {
-            const prev   = monthlyTrend[i - 1];
+        <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8, height: 180, paddingBottom: 4, overflowX: 'auto' }}>
+          {monthlyTrend.slice(-12).map((m, i, arr) => {
+            const prev   = arr[i - 1];
             const diff   = prev ? m.expense - prev.expense : 0;
             const diffPct = prev && prev.expense ? ((diff / prev.expense) * 100).toFixed(1) : null;
             const isCurrent = m.month === currentMonthStr;
             return (
               <div key={m.month} style={{ flex: '0 0 auto', minWidth: 52, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 4 }}>
-                {diffPct !== null && (
-                  <div style={{ fontSize: 9, fontWeight: 700, color: diff > 0 ? '#FF6B6B' : '#1DD1A1' }}>
-                    {diff > 0 ? '▲' : '▼'}{Math.abs(diffPct)}%
-                  </div>
-                )}
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', minHeight: 30 }}>
+                  {diffPct !== null && (
+                    <div style={{ fontSize: 10, fontWeight: 700, color: diff > 0 ? '#FF6B6B' : '#1DD1A1', marginBottom: 2 }}>
+                      {diff > 0 ? '▲' : '▼'}{Math.abs(diffPct)}%
+                    </div>
+                  )}
+                  <div style={{ fontSize: 11, color: '#6B7494', marginBottom: 2 }}>{m.month}</div>
+                </div>
                 <div style={{ display: 'flex', gap: 3, alignItems: 'flex-end', height: 110 }}>
-                  {/* income bar */}
-                  <div
-                    title={`Income: ${formatINRFull(m.income)}`}
-                    style={{
-                      width: 20,
-                      height: `${Math.max((m.income / maxTrendVal) * 100, 2)}%`,
-                      background: isCurrent ? 'linear-gradient(180deg,#1DD1A1,#00A085)' : 'linear-gradient(180deg,#1DD1A155,#1DD1A133)',
-                      borderRadius: '4px 4px 0 0',
-                      cursor: 'pointer',
-                      transition: 'height 0.4s ease',
-                    }}
-                  />
                   {/* expense bar */}
                   <div
                     title={`Expense: ${formatINRFull(m.expense)}`}
                     style={{
-                      width: 20,
+                      width: 24,
                       height: `${Math.max((m.expense / maxTrendVal) * 100, 2)}%`,
                       background: isCurrent ? 'linear-gradient(180deg,#FF6B6B,#E55555)' : 'linear-gradient(180deg,#FF6B6B55,#FF6B6B33)',
-                      borderRadius: '4px 4px 0 0',
+                      borderRadius: '6px 6px 0 0',
                       cursor: 'pointer',
                       transition: 'height 0.4s ease',
+                      boxShadow: isCurrent ? '0 2px 12px #FF6B6B44' : undefined,
                     }}
                   />
                 </div>
-                <div style={{
-                  fontSize: 10, color: isCurrent ? '#E8EAF0' : '#4A5068',
-                  fontWeight: isCurrent ? 700 : 400, whiteSpace: 'nowrap',
-                }}>
-                  {MONTHS[parseInt(m.month.split('-')[1]) - 1]}
+                <div style={{ fontSize: 12, color: isCurrent ? '#E8EAF0' : '#4A5068', fontWeight: isCurrent ? 700 : 400, marginTop: 2 }}>
+                  {formatINR(m.expense)}
                 </div>
               </div>
             );
           })}
         </div>
         <div style={{ display: 'flex', gap: 20, marginTop: 12, paddingTop: 12, borderTop: '1px solid #1E2436' }}>
-          {[['#1DD1A1', 'Income'], ['#FF6B6B', 'Expenses']].map(([color, label]) => (
-            <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 11, color: '#6B7494' }}>
-              <div style={{ width: 10, height: 10, borderRadius: 2, background: color }} /> {label}
-            </div>
-          ))}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 11, color: '#6B7494' }}>
+            <div style={{ width: 10, height: 10, borderRadius: 2, background: '#FF6B6B' }} /> Expenses
+          </div>
           <div style={{ marginLeft: 'auto', fontSize: 11, color: '#4A5068' }}>
             Brighter bars = current month
           </div>
@@ -518,11 +556,10 @@ export default function Dashboard({ transactions, currentMonthStr, monthlyBudget
       </div>
 
       {/* ── Key Metrics ─────────────────────────────────────────────── */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14, marginBottom: 20 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: 14, marginBottom: 20 }}>
         {[
-          { label: 'Savings Rate',     value: `${savingsRate}%`,         color: savingsRate >= 0 ? '#1DD1A1' : '#FF6B6B', desc: 'of monthly income',   icon: '💰' },
           { label: 'Daily Average',    value: formatINR(dailyAvg),       color: '#FF9F43',                                  desc: 'per day this month', icon: '📅' },
-          { label: 'Fixed Costs',      value: formatINR(fixedCosts),     color: '#5F27CD',                                  desc: 'housing + utilities', icon: '🏠' },
+          { label: 'Fixed Costs',      value: formatINR(fixedCosts),     color: '#5F27CD',                                  desc: 'housing + utilities + fuel', icon: '🏠' },
         ].map((s, i) => (
           <div key={i} style={{ background: '#161923', border: `1px solid ${s.color}33`, borderRadius: 16, padding: '20px 22px', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
             <div style={{ fontSize: 28, marginBottom: 8 }}>{s.icon}</div>
@@ -543,8 +580,7 @@ export default function Dashboard({ transactions, currentMonthStr, monthlyBudget
           </button>
         </div>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-          {transactions
-            .filter(t => t.date.startsWith(currentMonthStr))
+          {currentPeriodTx
             .sort((a, b) => b.date.localeCompare(a.date))
             .slice(0, 6)
             .map(t => {
@@ -558,75 +594,18 @@ export default function Dashboard({ transactions, currentMonthStr, monthlyBudget
                     <div style={{ fontSize: 13, fontWeight: 500, color: '#D0D6E8', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{t.description}</div>
                     <div style={{ fontSize: 11, color: '#4A5068', marginTop: 1 }}>{t.date} · {cat.label}</div>
                   </div>
-                  <div style={{ fontSize: 14, fontWeight: 700, color: t.type === 'income' ? '#1DD1A1' : '#FF6B6B', flexShrink: 0 }}>
-                    {t.type === 'income' ? '+' : '−'}{formatINRFull(t.amount)}
+                  <div style={{ fontSize: 14, fontWeight: 700, color: '#FF6B6B', flexShrink: 0 }}>
+                    −{formatINRFull(t.amount)}
                   </div>
                 </div>
               );
             })}
-          {transactions.filter(t => t.date.startsWith(currentMonthStr)).length === 0 && (
-            <div style={{ textAlign: 'center', padding: 30, color: '#4A5068', fontSize: 13 }}>No transactions this month yet</div>
+          {currentPeriodTx.length === 0 && (
+            <div style={{ textAlign: 'center', padding: 30, color: '#4A5068', fontSize: 13 }}>No transactions in this period yet</div>
           )}
         </div>
       </div>
 
-      {/* ── AI Insights ─────────────────────────────────────────────── */}
-      {(aiInsights || loadingInsights) && (
-        <div className="card" style={{ background: '#6C63FF08', border: '1px solid #6C63FF33' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 15, fontWeight: 600, marginBottom: 16 }}>
-            <span>🤖 AI-Powered Insights</span>
-            {loadingInsights && <span style={{ fontSize: 12, color: '#6B7494' }}>(Analysing…)</span>}
-            {aiInsights?.aiGenerated && (
-              <span style={{ fontSize: 11, color: '#6C63FF', background: '#6C63FF22', padding: '2px 8px', borderRadius: 4 }}>
-                Gemini AI
-              </span>
-            )}
-          </div>
-
-          {loadingInsights && (
-            <div style={{ textAlign: 'center', padding: 30, color: '#6B7494', fontSize: 13 }}>
-              ⏳ Generating insights from your spending data…
-            </div>
-          )}
-
-          {aiInsights && !loadingInsights && (
-            <>
-              {aiInsights.insights?.length > 0 && (
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: 12, marginBottom: 16 }}>
-                  {aiInsights.insights.map((ins, i) => {
-                    const bg  = ins.severity === 'warning' ? '#FF6B6B22' : ins.severity === 'positive' ? '#1DD1A122' : '#54A0FF22';
-                    const bdr = ins.severity === 'warning' ? '#FF6B6B'   : ins.severity === 'positive' ? '#1DD1A1'   : '#54A0FF';
-                    return (
-                      <div key={i} style={{ background: bg, border: `1px solid ${bdr}`, borderRadius: 10, padding: 14 }}>
-                        <div style={{ fontSize: 22, marginBottom: 6 }}>{ins.emoji}</div>
-                        <div style={{ fontSize: 13, fontWeight: 600, color: '#D0D6E8', marginBottom: 4 }}>{ins.title}</div>
-                        <div style={{ fontSize: 12, color: '#6B7494', lineHeight: 1.5 }}>{ins.description}</div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-              {aiInsights.recommendations?.length > 0 && (
-                <div style={{ marginBottom: 14 }}>
-                  <div style={{ fontSize: 12, fontWeight: 600, color: '#D0D6E8', marginBottom: 10 }}>Recommendations</div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
-                    {aiInsights.recommendations.map((rec, i) => (
-                      <div key={i} style={{ background: '#1A1D28', padding: '10px 14px', borderRadius: 8, fontSize: 12, color: '#6B7494', borderLeft: '3px solid #6C63FF' }}>
-                        ✓ {rec}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-              {aiInsights.savingsPotential && (
-                <div style={{ background: '#1DD1A122', border: '1px solid #1DD1A1', borderRadius: 10, padding: 12, fontSize: 12, color: '#1DD1A1' }}>
-                  💡 <strong>Savings Potential:</strong> {aiInsights.savingsPotential}
-                </div>
-              )}
-            </>
-          )}
-        </div>
-      )}
     </div>
   );
 }

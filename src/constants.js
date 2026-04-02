@@ -7,7 +7,7 @@ export const CATEGORIES = [
   { id: "entertainment", label: "Entertainment",  icon: "🎬", color: "#FF9FF3" },
   { id: "shopping",      label: "Shopping",       icon: "🛍️", color: "#48DBFB" },
   { id: "education",     label: "Education",      icon: "📚", color: "#1DD1A1" },
-  { id: "savings",       label: "Savings",        icon: "💰", color: "#F9CA24" },
+  { id: "fuel",          label: "Fuel",           icon: "⛽", color: "#F9CA24" },
   { id: "other",         label: "Other",          icon: "📦", color: "#C8D6E5" },
 ];
 

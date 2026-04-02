@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { CATEGORIES, MONTHS } from '../constants.js';
 import { formatINR, formatINRFull } from '../utils.js';
-import { generateSpendingInsights } from '../services/insightsService.js';
+// AI insights removed — no external insights service used
 
 const CAT_VAR = {
   housing:       { fill: 'var(--rose)',   bg: 'var(--rose-muted)'   },
@@ -19,8 +19,7 @@ function catColors(id) { return CAT_VAR[id] || CAT_VAR.other; }
 
 export default function Reports({ transactions, currentMonthStr, monthlyBudget }) {
   const [filterMonth,    setFilterMonth]    = useState('all');
-  const [aiInsights,     setAiInsights]     = useState(null);
-  const [loadingInsights, setLoadingInsights] = useState(false);
+  // AI insights removed
 
   const uniqueMonths = [...new Set(transactions.map(t => t.date.slice(0, 7)))].sort().reverse();
 
@@ -30,7 +29,6 @@ export default function Reports({ transactions, currentMonthStr, monthlyBudget }
 
   const expenses = filtered.filter(t => t.type === 'expense');
   const totalExp = expenses.reduce((s, t) => s + t.amount, 0);
-  const totalInc = filtered.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
   const avg      = expenses.length ? totalExp / expenses.length : 0;
   const max      = expenses.length ? Math.max(...expenses.map(t => t.amount)) : 0;
   const maxTx    = expenses.find(t => t.amount === max);
@@ -47,26 +45,18 @@ export default function Reports({ transactions, currentMonthStr, monthlyBudget }
     const map = {};
     transactions.forEach(t => {
       const m = t.date.slice(0, 7);
-      if (!map[m]) map[m] = { income: 0, expense: 0 };
-      map[m][t.type] += t.amount;
+      if (!map[m]) map[m] = { expense: 0 };
+      if (t.type === 'expense') map[m].expense += t.amount;
     });
     return Object.entries(map).sort().map(([month, data]) => ({ month, ...data }));
   }, [transactions]);
 
   const currentMonthTx = transactions.filter(t => t.date.startsWith(currentMonthStr));
-  const currentIncome  = currentMonthTx.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
   const currentExp     = currentMonthTx.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
-  const savings        = currentIncome - currentExp;
 
   const topCatInfo = topCat ? CATEGORIES.find(c => c.id === topCat[0]) : null;
 
-  useEffect(() => {
-    if (filtered.length === 0) return;
-    setLoadingInsights(true);
-    generateSpendingInsights(filtered, catMap, monthlyTrend, currentMonthStr)
-      .then(insights => { setAiInsights(insights); setLoadingInsights(false); })
-      .catch(() => setLoadingInsights(false));
-  }, [filtered, catMap, monthlyTrend, currentMonthStr]);
+  // AI insights removed — no background analysis
 
   const summaryCards = [
     { label: 'Total Spent',         value: formatINRFull(totalExp), color: 'var(--expense)', sub: `${expenses.length} transactions` },
@@ -159,17 +149,13 @@ export default function Reports({ transactions, currentMonthStr, monthlyBudget }
                       {MONTHS[parseInt(m.month.split('-')[1]) - 1]} {m.month.split('-')[0]}
                     </span>
                     {prev && (
-                      <span style={{ fontSize: 11, color: diff > 0 ? 'var(--expense)' : 'var(--income)', fontWeight: 600 }}>
+                      <span style={{ fontSize: 11, color: diff > 0 ? 'var(--expense)' : 'var(--teal)', fontWeight: 600 }}>
                         {diff > 0 ? '▲' : '▼'} {Math.abs(pct).toFixed(1)}%
                       </span>
                     )}
                   </div>
                   <div style={{ display: 'flex', gap: 16 }}>
-                    <span style={{ fontSize: 12, color: 'var(--income)' }}>↑ {formatINR(m.income)}</span>
                     <span style={{ fontSize: 12, color: 'var(--expense)' }}>↓ {formatINR(m.expense)}</span>
-                    <span style={{ fontSize: 12, color: m.income - m.expense >= 0 ? 'var(--sky)' : 'var(--expense)' }}>
-                      = {formatINR(m.income - m.expense)}
-                    </span>
                   </div>
                 </div>
               );
@@ -183,9 +169,9 @@ export default function Reports({ transactions, currentMonthStr, monthlyBudget }
         <div style={{ fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 16 }}>Spending Insights</div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 14 }}>
           {[
-            { label: 'Savings Rate',  value: `${currentIncome > 0 ? Math.round((savings / currentIncome) * 100) : 0}%`, color: savings >= 0 ? 'var(--income)' : 'var(--expense)', desc: 'of monthly income' },
+            { label: 'Period Spent',  value: formatINRFull(currentExp), color: 'var(--expense)', desc: 'this month' },
             { label: 'Daily Average', value: formatINR(currentExp / new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate()), color: 'var(--amber)', desc: 'per day this month' },
-            { label: 'Fixed Costs',   value: formatINR(currentMonthTx.filter(t => t.type === 'expense' && ['housing','utilities','savings'].includes(t.category)).reduce((s, t) => s + t.amount, 0)), color: 'var(--violet)', desc: 'housing + utilities + SIP' },
+            { label: 'Fixed Costs',   value: formatINR(currentMonthTx.filter(t => t.type === 'expense' && ['housing','utilities','fuel'].includes(t.category)).reduce((s, t) => s + t.amount, 0)), color: 'var(--violet)', desc: 'housing + utilities + fuel' },
           ].map((s, i) => (
             <div key={i} style={{ background: 'var(--bg-elevated)', borderRadius: 12, padding: 18, textAlign: 'center', border: `1px solid var(--border)` }}>
               <div style={{ fontSize: 24, fontWeight: 700, color: s.color }}>{s.value}</div>
@@ -196,64 +182,7 @@ export default function Reports({ transactions, currentMonthStr, monthlyBudget }
         </div>
       </div>
 
-      {/* AI Insights */}
-      {(aiInsights || loadingInsights) && (
-        <div className="card" style={{ background: 'var(--violet-muted)', border: '1px solid var(--violet)' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, fontSize: 14, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 16 }}>
-            <span>🤖 AI-Powered Insights</span>
-            {loadingInsights && <span style={{ fontSize: 12, color: 'var(--text-muted)' }}>(Analysing…)</span>}
-            {aiInsights?.aiGenerated && (
-              <span style={{ fontSize: 11, color: 'var(--violet)', background: 'var(--bg-elevated)', padding: '2px 8px', borderRadius: 4 }}>
-                Gemini AI
-              </span>
-            )}
-          </div>
-
-          {loadingInsights && (
-            <div style={{ textAlign: 'center', padding: 30, color: 'var(--text-muted)', fontSize: 13 }}>
-              ⏳ Generating insights from your spending data…
-            </div>
-          )}
-
-          {aiInsights && !loadingInsights && (
-            <>
-              {aiInsights.insights?.length > 0 && (
-                <div style={{ marginBottom: 18 }}>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-secondary)', marginBottom: 12, letterSpacing: '0.5px' }}>KEY FINDINGS</div>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 12 }}>
-                    {aiInsights.insights.map((insight, i) => (
-                      <div key={i} style={{ background: insightBg(insight.severity), border: `1px solid ${insightBorder(insight.severity)}`, borderRadius: 10, padding: 14 }}>
-                        <div style={{ fontSize: 22, marginBottom: 8 }}>{insight.emoji}</div>
-                        <div style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', marginBottom: 5 }}>{insight.title}</div>
-                        <div style={{ fontSize: 12, color: 'var(--text-secondary)', lineHeight: 1.5 }}>{insight.description}</div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {aiInsights.recommendations?.length > 0 && (
-                <div style={{ marginBottom: 14 }}>
-                  <div style={{ fontSize: 12, fontWeight: 700, color: 'var(--text-secondary)', marginBottom: 12, letterSpacing: '0.5px' }}>RECOMMENDATIONS</div>
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-                    {aiInsights.recommendations.map((rec, i) => (
-                      <div key={i} style={{ background: 'var(--bg-elevated)', padding: 12, borderRadius: 8, fontSize: 12, color: 'var(--text-secondary)', borderLeft: '3px solid var(--violet)' }}>
-                        ✓ {rec}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {aiInsights.savingsPotential && (
-                <div style={{ background: 'var(--teal-muted)', border: '1px solid var(--teal)', borderRadius: 10, padding: 12, fontSize: 12, color: 'var(--teal)' }}>
-                  💡 <strong>Savings Potential:</strong> {aiInsights.savingsPotential}
-                </div>
-              )}
-            </>
-          )}
-        </div>
-      )}
+      {/* AI Insights removed */}
     </div>
   );
 }

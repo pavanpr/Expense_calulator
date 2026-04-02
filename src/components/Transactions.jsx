@@ -13,7 +13,6 @@ export default function Transactions({
 }) {
   const [filterMonth,    setFilterMonth]    = useState('all');
   const [filterCategory, setFilterCategory] = useState(initialCategoryFilter || 'all');
-  const [filterType,     setFilterType]     = useState('all');
   const [sortKey,        setSortKey]        = useState('date-desc');
   const [editForm,       setEditForm]       = useState({});
 
@@ -31,8 +30,7 @@ export default function Transactions({
     return transactions.filter(t => {
       const monthMatch = filterMonth    === 'all' || t.date.startsWith(filterMonth);
       const catMatch   = filterCategory === 'all' || t.category === filterCategory;
-      const typeMatch  = filterType     === 'all' || t.type === filterType;
-      return monthMatch && catMatch && typeMatch;
+      return monthMatch && catMatch;
     }).sort((a, b) => {
       if (sortBy === 'date')   return sortDir === 'desc' ? b.date.localeCompare(a.date)   : a.date.localeCompare(b.date);
       if (sortBy === 'amount') return sortDir === 'desc' ? b.amount - a.amount             : a.amount - b.amount;
@@ -41,7 +39,6 @@ export default function Transactions({
   }, [transactions, filterMonth, filterCategory, filterType, sortKey]);
 
   const totalExp = filtered.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
-  const totalInc = filtered.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
 
   const activeCatInfo = CATEGORIES.find(c => c.id === filterCategory);
 
@@ -81,11 +78,6 @@ export default function Transactions({
           <option value="all">All Categories</option>
           {CATEGORIES.map(c => <option key={c.id} value={c.id}>{c.icon} {c.label}</option>)}
         </select>
-        <select className="input-field" style={{ width: 'auto' }} value={filterType} onChange={e => setFilterType(e.target.value)}>
-          <option value="all">All Types</option>
-          <option value="expense">Expenses</option>
-          <option value="income">Income</option>
-        </select>
         <select className="input-field" style={{ width: 'auto' }} value={sortKey} onChange={e => setSortKey(e.target.value)}>
           <option value="date-desc">Newest First</option>
           <option value="date-asc">Oldest First</option>
@@ -95,11 +87,9 @@ export default function Transactions({
       </div>
 
       {/* Summary */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, marginBottom: 20 }}>
+      <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: 12, marginBottom: 20 }}>
         {[
-          { label: 'Total Expenses', value: totalExp,            color: '#C85A54' },
-          { label: 'Total Income',   value: totalInc,            color: '#6BA69D' },
-          { label: 'Net',            value: totalInc - totalExp, color: totalInc - totalExp >= 0 ? '#6B8CAE' : '#C85A54' },
+          { label: 'Total Expenses', value: totalExp, color: '#C85A54' },
         ].map((s, i) => (
           <div key={i} style={{ background: '#1A1D28', border: '1px solid #252A3A', borderRadius: 12, padding: '14px 18px' }}>
             <div style={{ fontSize: 11, color: '#4A5068', marginBottom: 4 }}>{s.label}</div>
@@ -110,14 +100,13 @@ export default function Transactions({
 
       {/* Table */}
       <div className="card" style={{ padding: 0, overflow: 'hidden' }}>
-        <div style={{
-          display: 'grid', gridTemplateColumns: '100px 1fr 140px 130px 80px 80px',
+          <div style={{
+          display: 'grid', gridTemplateColumns: '100px 1fr 140px 130px 80px',
           padding: '12px 20px', borderBottom: '1px solid #1E2436',
           fontSize: 11, color: '#4A5068', fontWeight: 600, letterSpacing: '0.5px',
         }}>
           <span>DATE</span><span>DESCRIPTION</span><span>CATEGORY</span>
           <span style={{ textAlign: 'right' }}>AMOUNT</span>
-          <span style={{ textAlign: 'center' }}>TYPE</span>
           <span style={{ textAlign: 'center' }}>ACTIONS</span>
         </div>
         <div style={{ maxHeight: '60vh', overflowY: 'auto' }}>
@@ -130,7 +119,7 @@ export default function Transactions({
               <div key={t.id}>
                 {isEditing ? (
                   <div style={{
-                    display: 'grid', gridTemplateColumns: '100px 1fr 140px 130px 80px 80px',
+                    display: 'grid', gridTemplateColumns: '100px 1fr 140px 130px 80px',
                     padding: '12px 20px', borderBottom: '1px solid #12151E', alignItems: 'center',
                     background: '#1A1D28',
                   }}>
@@ -148,12 +137,7 @@ export default function Transactions({
                     <input type="number" value={currentForm.amount}
                       onChange={e => setEditForm(p => ({ ...p, [t.id]: { ...currentForm, amount: parseFloat(e.target.value) || 0 } }))}
                       style={{ fontSize: 12, padding: '4px 8px', borderRadius: 6, background: '#0D0F14', border: '1px solid #252A3A', color: '#D0D6E8', textAlign: 'right' }} />
-                    <select value={currentForm.type}
-                      onChange={e => setEditForm(p => ({ ...p, [t.id]: { ...currentForm, type: e.target.value } }))}
-                      style={{ fontSize: 12, padding: '4px 8px', borderRadius: 6, background: '#0D0F14', border: '1px solid #252A3A', color: '#D0D6E8' }}>
-                      <option value="expense">Expense</option>
-                      <option value="income">Income</option>
-                    </select>
+                    
                     <div style={{ display: 'flex', gap: 4, justifyContent: 'center' }}>
                       <button onClick={() => onEdit(t.id, currentForm)} title="Save"
                         style={{ background: '#6BA69D', border: 'none', color: 'white', cursor: 'pointer', fontSize: 14, padding: '4px 8px', borderRadius: 6, fontWeight: 700 }}>✓</button>
@@ -163,7 +147,7 @@ export default function Transactions({
                   </div>
                 ) : (
                   <div className="tx-row" style={{
-                    display: 'grid', gridTemplateColumns: '100px 1fr 140px 130px 80px 80px',
+                    display: 'grid', gridTemplateColumns: '100px 1fr 140px 130px 80px',
                     padding: '12px 20px', borderBottom: '1px solid #12151E', alignItems: 'center',
                   }}>
                     <span style={{ fontSize: 12, color: '#4A5068' }}>{t.date}</span>
@@ -178,13 +162,8 @@ export default function Transactions({
                         {cat.label}
                       </span>
                     </span>
-                    <span style={{ fontSize: 14, fontWeight: 700, color: t.type === 'income' ? '#6BA69D' : '#C85A54', textAlign: 'right' }}>
-                      {t.type === 'income' ? '+' : '−'}{formatINRFull(t.amount)}
-                    </span>
-                    <span style={{ textAlign: 'center' }}>
-                      <span style={{ display: 'inline-flex', padding: '3px 10px', borderRadius: 20, fontSize: 12, fontWeight: 500, background: t.type === 'income' ? '#6BA69D22' : '#C85A5422', color: t.type === 'income' ? '#6BA69D' : '#C85A54' }}>
-                        {t.type}
-                      </span>
+                    <span style={{ fontSize: 14, fontWeight: 700, color: '#C85A54', textAlign: 'right' }}>
+                      −{formatINRFull(t.amount)}
                     </span>
                     <div style={{ display: 'flex', gap: 6, justifyContent: 'center' }}>
                       <button onClick={() => { setEditingId(t.id); setEditForm(p => ({ ...p, [t.id]: t })); }} title="Edit"
