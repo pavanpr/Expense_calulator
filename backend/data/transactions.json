@@ -777,5 +777,41 @@
     "type": "expense",
     "date": "2026-03-28",
     "createdAt": "2026-04-01T11:09:28.123Z"
+  },
+  {
+    "id": 1775122888151,
+    "description": "High Protein snack",
+    "amount": 220,
+    "category": "food",
+    "type": "expense",
+    "date": "2026-04-01",
+    "createdAt": "2026-04-02T09:41:28.151Z"
+  },
+  {
+    "id": 1775122902145,
+    "description": "Tea at Housing Board",
+    "amount": 60,
+    "category": "food",
+    "type": "expense",
+    "date": "2026-04-02",
+    "createdAt": "2026-04-02T09:41:42.145Z"
+  },
+  {
+    "id": 1775122915313,
+    "description": "Slippers for Lavith",
+    "amount": 350,
+    "category": "shopping",
+    "type": "expense",
+    "date": "2026-04-02",
+    "createdAt": "2026-04-02T09:41:55.313Z"
+  },
+  {
+    "id": 1775122928964,
+    "description": "Nannari and Badam Milk",
+    "amount": 200,
+    "category": "food",
+    "type": "expense",
+    "date": "2026-04-02",
+    "createdAt": "2026-04-02T09:42:08.964Z"
   }
 ]
